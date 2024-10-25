@@ -61,7 +61,12 @@
       @save="saveCiEntityData"
       @cancel="closeCiDialog"
     ></EditCiEntity>
-    <ImportTemplate v-if="isTemplateShow" :ciId="editCiId" @close="closeTemplateDialog"></ImportTemplate>
+    <ImportTemplate
+      v-if="isTemplateShow"
+      :formConfigList="dataConfig"
+      :ciId="editCiId"
+      @close="closeTemplateDialog"
+    ></ImportTemplate>
     <input
       ref="fileInput"
       type="file"

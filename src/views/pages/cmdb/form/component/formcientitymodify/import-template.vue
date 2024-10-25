@@ -38,7 +38,8 @@ export default {
   },
   directives: { download },
   props: {
-    ciId: { type: Number }
+    ciId: { type: Number },
+    formConfigList: { type: Array }
   },
   data() {
     return {
@@ -99,6 +100,14 @@ export default {
         }
       });
       this.tbodyList = [...glbalTbodyList, ...attrTbodyList, ...relTbodyList];
+      if (this.formConfigList && this.formConfigList.length > 0 && this.tbodyList && this.tbodyList.length > 0) {
+        this.formConfigList.forEach(formitem => {
+          const item = this.tbodyList.find(tbodyitem => formitem.key === tbodyitem.rowType + '_' + tbodyitem.id);
+          if (item) {
+            this.$set(item, '_selected', true);
+          }
+        });
+      }
     },
     close() {
       this.$emit('close');
@@ -112,6 +121,7 @@ export default {
   },
   filter: {},
   computed: {
+   
     downloadUrl() {
       return {
         url: 'api/binary/cmdb/import/template/get',
