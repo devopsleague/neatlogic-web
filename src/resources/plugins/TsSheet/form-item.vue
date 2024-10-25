@@ -1,21 +1,24 @@
 <template>
-  <div class="form-item">
+  <div class="form-item radius-md" :class="{ 'bg-error-grey': showStatusIcon && (hasDataError || hasConfigError) }">
     <i v-if="isShowComponent && formItem.config && formItem.config.isRequired && !readonly && !formItem.config.isReadOnly" class="require-tip text-error">*</i>
     <!--编辑模式下的非container组件需要增加遮罩屏蔽所有操作，container组件需要接受拖拽组件进去，不需要遮罩-->
     <div v-if="(mode === 'edit' || mode === 'editSubform') && !formItem.isContainer" class="editor-mask"></div>
-    <div v-if=" mode != 'defaultvalue' && mode !== 'condition' && ((formItem.override_config && formItem.override_config.isMask) || (formItem.config && formItem.config.isMask))" class="mask">
+    <div v-if="mode != 'defaultvalue' && mode !== 'condition' && ((formItem.override_config && formItem.override_config.isMask) || (formItem.config && formItem.config.isMask))" class="mask">
       <!-- <span class="tsfont-eye-off"></span>
       <span class="mask-text text-grey">当前组件不可见</span>-->
     </div>
     <div v-if="showStatusIcon && hasConfigError" class="corner-icon">
       <Poptip
         word-wrap
-        width="350"
         trigger="hover"
         :title="$t('page.exception')"
         transfer
       >
-        <span class="text-error tsfont-warning-s"></span>
+        <!--<span class="text-error tsfont-warning-s"></span>-->
+        <Tag color="error">
+          <b>{{ configErrorList.length }}</b>
+          个异常
+        </Tag>
         <div slot="content">
           <ul>
             <li v-for="(error, index) in configErrorList" :key="index">{{ error.error }}</li>
@@ -27,12 +30,15 @@
     <div v-else-if="showStatusIcon && hasDataError" class="corner-icon">
       <Poptip
         word-wrap
-        width="350"
         trigger="hover"
-        title="异常"
+        :title="$t('page.exception')"
         transfer
       >
-        <span class="text-error tsfont-danger-s"></span>
+        <!--<span class="text-error tsfont-danger-s"></span>-->
+        <Tag color="error">
+          <b>{{ dataErrorList.length }}</b>
+          个异常
+        </Tag>
         <div slot="content">
           <ul>
             <li v-for="(error, index) in dataErrorList" :key="index">{{ error.error }}</li>
@@ -40,11 +46,7 @@
         </div>
       </Poptip>
     </div>
-    <div
-      v-if="clearable && mode == 'edit'"
-      class="corner-close-icon tsfont-close-o text-tip-active"
-      @mousedown.prevent.stop="$emit('delete')"
-    ></div>
+    <div v-if="clearable && mode == 'edit'" class="corner-close-icon tsfont-close-o text-tip-active" @mousedown.prevent.stop="$emit('delete')"></div>
     <div v-if="mode == 'edit' && formItem.config && formItem.config.isHide" class="corner-bottom-icon text-grey tsfont-eye-off"></div>
     <div v-if="needLabel" class="mb-xs">{{ formItem.label }}</div>
     <template v-if="isShowComponent && (!formItem.type || formItem.type === 'form')">
@@ -52,15 +54,15 @@
         :is="formItem.handler"
         v-if="isExistComponent && formItem.handler !== 'formcustom'"
         ref="formItem"
-        :style="{ width: mode != 'defaultvalue'?(formItem.config && formItem.config.width) || '100%':'100%' }"
+        :style="{ width: mode != 'defaultvalue' ? (formItem.config && formItem.config.width) || '100%' : '100%' }"
         :formItem="formItem"
         :formItemList="formItemList"
         :value="formItemValue"
         :mode="mode"
         :filter="filter"
-        :readonly="((mode != 'defaultvalue' && mode != 'condition') ? formItem.config && formItem.config.isReadOnly:false) || readonly"
-        :disabled="((mode != 'defaultvalue' && mode != 'condition') ? formItem.config && formItem.config.isDisabled:false) || disabled"
-        :required="(mode != 'defaultvalue'?formItem.config && formItem.config.isRequired:false)"
+        :readonly="(mode != 'defaultvalue' && mode != 'condition' ? formItem.config && formItem.config.isReadOnly : false) || readonly"
+        :disabled="(mode != 'defaultvalue' && mode != 'condition' ? formItem.config && formItem.config.isDisabled : false) || disabled"
+        :required="mode != 'defaultvalue' ? formItem.config && formItem.config.isRequired : false"
         :formData="formData"
         :readonlyTextIsHighlight="readonlyTextIsHighlight"
         :isClearEchoFailedDefaultValue="isClearEchoFailedDefaultValue"
@@ -76,15 +78,15 @@
         :is="formItem.customName"
         v-else-if="isExistComponent && formItem.handler === 'formcustom'"
         ref="formItem"
-        :style="{ width: mode != 'defaultvalue'?(formItem.config && formItem.config.width) || '100%':'100%' }"
+        :style="{ width: mode != 'defaultvalue' ? (formItem.config && formItem.config.width) || '100%' : '100%' }"
         :formItem="formItem"
         :formItemList="formItemList"
         :value="formItemValue"
         :mode="mode"
         :filter="filter"
-        :readonly="((mode != 'defaultvalue' && mode != 'condition') ? formItem.config && formItem.config.isReadOnly:false) || readonly"
-        :disabled="((mode != 'defaultvalue' && mode != 'condition') ? formItem.config && formItem.config.isDisabled:false) || disabled"
-        :required="(mode != 'defaultvalue'?formItem.config && formItem.config.isRequired:false)"
+        :readonly="(mode != 'defaultvalue' && mode != 'condition' ? formItem.config && formItem.config.isReadOnly : false) || readonly"
+        :disabled="(mode != 'defaultvalue' && mode != 'condition' ? formItem.config && formItem.config.isDisabled : false) || disabled"
+        :required="mode != 'defaultvalue' ? formItem.config && formItem.config.isRequired : false"
         :formData="formData"
         :readonlyTextIsHighlight="readonlyTextIsHighlight"
         :isClearEchoFailedDefaultValue="isClearEchoFailedDefaultValue"
@@ -108,8 +110,8 @@
       :value="formItemValue"
       :mode="mode"
       :filter="filter"
-      :readonly="(mode != 'defaultvalue'?formItem.config && formItem.config.isReadOnly:false) || readonly"
-      :disabled="(mode != 'defaultvalue'?formItem.config && formItem.config.isDisabled:false) || disabled"
+      :readonly="(mode != 'defaultvalue' ? formItem.config && formItem.config.isReadOnly : false) || readonly"
+      :disabled="(mode != 'defaultvalue' ? formItem.config && formItem.config.isDisabled : false) || disabled"
       :readonlyTextIsHighlight="readonlyTextIsHighlight"
       :isClearSpecifiedAttr="isClearSpecifiedAttr"
       :externalData="externalData"
@@ -175,11 +177,13 @@ export default {
       type: Object,
       default: () => {}
     },
-    isEnableDefaultValue: {//默认启用组件赋值(应用在工单详情页，用户无流转权限，设为false)
+    isEnableDefaultValue: {
+      //默认启用组件赋值(应用在工单详情页，用户无流转权限，设为false)
       type: Boolean,
       default: true
     },
-    isClearSpecifiedAttr: {//工单权限用户编辑表单时，需要清除表单设置的只读，禁用，隐藏等规则属性
+    isClearSpecifiedAttr: {
+      //工单权限用户编辑表单时，需要清除表单设置的只读，禁用，隐藏等规则属性
       type: Boolean,
       default: false
     },
@@ -277,23 +281,22 @@ export default {
             'formDataForWatch',
             (newValue, oldValue) => {
               this.enqueueReaction(this.componentUuid, () => {
-                console.log('开始单个处理');
                 const newVal = newValue && JSON.parse(newValue);
                 const oldVal = oldValue && JSON.parse(oldValue);
                 for (let action in this.formItem.reaction) {
-                //如果override_config有配置，则相关联动不生效
+                  //如果override_config有配置，则相关联动不生效
                   const overrideConfig = this.formItem.override_config || {};
                   const reaction = this.formItem.reaction[action];
                   if (reaction && !this.$utils.isEmpty(reaction) && this.isConditionDataChange(action, reaction, newVal, oldVal, this.formItem.uuid)) {
                     const result = this.executeReaction(reaction, newVal, oldVal);
                     if (this.REACTION[action]) {
-                    //联动操作
-                      this.REACTION[action]({overrideConfig: overrideConfig, reaction: reaction, result: result, view: this});
+                      //联动操作
+                      this.REACTION[action]({ overrideConfig: overrideConfig, reaction: reaction, result: result, view: this });
                     }
                   }
                 }
                 if (this.formItem.config && this.formItem.config.isHide && this.formItem.config.isRequired) {
-                // 拿到隐藏+必填表单uuid
+                  // 拿到隐藏+必填表单uuid
                   this.$emit('updateHiddenComponentList', newVal, this.formItem.uuid);
                 }
                 //此语句移到了TsSheet的executeReaction方法中，批量执行完毕后再强制重绘
@@ -307,28 +310,28 @@ export default {
     },
     handleFilterValue(value, column, formItem = {}) {
       let tmpText, tmpValue;
-      let {handler = '', config = {}} = formItem || {};
-      let {dataList = []} = config;
-      if (typeof value === 'string') {  
+      let { handler = '', config = {} } = formItem || {};
+      let { dataList = [] } = config;
+      if (typeof value === 'string') {
         tmpText = tmpValue = value;
         if (handler == 'formuserselect') {
           tmpText = tmpValue = this.handleUserSelectValue(value);
-        } else if (!this.$utils.isEmpty(dataList)) {  
-          const findData = dataList.find(f => f.value === value);  
-          tmpText = findData ? findData.text : value;  
-        }  
-      } else if (typeof value === 'object') {  
-        tmpText = value.text;  
+        } else if (!this.$utils.isEmpty(dataList)) {
+          const findData = dataList.find(f => f.value === value);
+          tmpText = findData ? findData.text : value;
+        }
+      } else if (typeof value === 'object') {
+        tmpText = value.text;
         tmpValue = value[column];
         if (handler == 'formuserselect') {
           tmpText = this.handleUserSelectValue(tmpText);
           tmpValue = this.handleUserSelectValue(tmpValue);
-        } else if (!this.$utils.isEmpty(dataList) && tmpValue) {  
-          const findData = dataList.find(f => f[column] === tmpValue);  
-          tmpText = findData ? findData.text : tmpText;  
-        }  
+        } else if (!this.$utils.isEmpty(dataList) && tmpValue) {
+          const findData = dataList.find(f => f[column] === tmpValue);
+          tmpText = findData ? findData.text : tmpText;
+        }
       }
-      return { text: tmpText, value: tmpValue };  
+      return { text: tmpText, value: tmpValue };
     },
     handleUserSelectValue(value) {
       // 处理用户下拉组件的值，去掉前缀
@@ -336,7 +339,7 @@ export default {
       let currentValue = this.$utils.deepClone(value);
       let uuid = '';
       let parts = [];
-      prefixList.some((v) => {
+      prefixList.some(v => {
         if (!this.$utils.isEmpty(currentValue) && currentValue.includes(v)) {
           parts = currentValue.split(v) || [];
           if (parts.length > 1) {
@@ -475,7 +478,6 @@ export default {
     formDataForWatch() {
       if (this.needWatch && this.formData) {
         const str = JSON.stringify(this.formData);
-        console.log('formDataForWatch', new Date());
         return str;
       }
       return null;
@@ -530,9 +532,7 @@ export default {
     isShowComponent() {
       const formItem = this.formItem;
       let isShow = true;
-      if (((this.mode === 'read' || this.mode === 'readSubform') && formItem.config && formItem.config.isHide) || formItem.isEditing ||
-         (formItem.override_config && formItem.override_config.isHide)
-      ) {
+      if (((this.mode === 'read' || this.mode === 'readSubform') && formItem.config && formItem.config.isHide) || formItem.isEditing || (formItem.override_config && formItem.override_config.isHide)) {
         isShow = false;
       }
       return isShow;

@@ -121,7 +121,7 @@ export default {
     validConfig() {
       return [];
     },
-    //验证数据，需要子组件继承，格式范例[{field:'label',error:'label不能为空'},{field:'dataSource',error:'数据源不能为空'}]
+    //验证数据，需要子组件继承，格式范例[{uuid:formItem.uuid,error:'label不能为空'},{uuid:formItem.uuid,error:'数据源不能为空'}]
     validData() {
       return [];
     },

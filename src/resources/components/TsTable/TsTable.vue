@@ -834,7 +834,7 @@ export default {
       if (this.tbodyList && this.tbodyList.length > 0) {
         let hasUnExpanded = false;
         this.tbodyList.forEach(element => {
-          if (!element['_expand'] && element['_expander'] != false) {
+          if (!element['_expand'] && element['#expander'] != false) {
             hasUnExpanded = true;
             return false;
           }
@@ -842,7 +842,7 @@ export default {
         if (hasUnExpanded) {
           //展开所有
           this.tbodyList.forEach(element => {
-            if (element['_expander'] != false) {
+            if (element['#expander'] != false) {
               //有展开按钮的才展示
               this.$emit('toggleExpand', element, true);
             }

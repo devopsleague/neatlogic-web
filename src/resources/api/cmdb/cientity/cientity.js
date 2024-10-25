@@ -111,6 +111,11 @@ const cientity = {
   },
   deleteAlertLevel(id) {
     return axios.post('/api/rest/cmdb/alertlevel/delete', { id: id });
+  },
+  importCiEntity(data) {
+    //上传文件
+    let config = { headers: { 'content-type': 'multipart/form-data' }, contentType: 'multipart/form-data'};
+    return axios.post('api/binary/file/upload', data, config);
   }
 };
 

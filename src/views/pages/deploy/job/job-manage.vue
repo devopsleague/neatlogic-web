@@ -505,12 +505,12 @@ export default {
           if (this.jobData.tbodyList && this.jobData.tbodyList.length > 0) {
             this.jobData.tbodyList.forEach(element => {
               if (element.source === 'batchdeploy' || element.source === 'deployschedulepipeline') {
-                this.$set(element, '_expander', true);
+                this.$set(element, '#expander', true);
                 if (this.searchValue.keyword) { //keyword搜索时，匹配到的父作业也需要将子作业展开
                   this.toggleChildJob(element);
                 }
               } else {
-                this.$set(element, '_expander', false);
+                this.$set(element, '#expander', false);
               }
               if (!this.jobEndStatusList.includes(element.status)) {
                 idList.push(element.id);

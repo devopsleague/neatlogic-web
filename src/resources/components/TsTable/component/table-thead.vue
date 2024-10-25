@@ -175,7 +175,7 @@ export default {
       let hasExpander = false;
       if (dataList && dataList.length > 0) {
         dataList.forEach(element => {
-          if (element['_expander'] != false) {
+          if (element['#expander'] != false) {
             hasExpander = true;
             if (!element['_expand']) {
               hasUnExpanded = true;

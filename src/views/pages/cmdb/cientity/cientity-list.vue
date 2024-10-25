@@ -3,7 +3,7 @@
     <div v-if="!ciEntityData.error">
       <div class="condition-grid mb-nm">
         <div>
-          <Dropdown v-if="needAction && ciEntityData && ciEntityData.tbodyList && ciEntityData.tbodyList.length > 0" trigger="click">
+          <Dropdown v-if="needCheck && needAction && ciEntityData && ciEntityData.tbodyList && ciEntityData.tbodyList.length > 0" trigger="click">
             <Button type="primary" ghost :disabled="!selectedCiEntityList || selectedCiEntityList.length == 0">
               {{ $t('page.batchoperation') }}
               <span class="tsfont-down"></span>
@@ -14,7 +14,7 @@
             </DropdownMenu>
           </Dropdown>
         </div>
-        <div style="text-align:right" class="action-group">
+        <div style="text-align: right" class="action-group">
           <div v-if="!isAdvancedSearch && needExport" class="action-item">
             <Button type="primary" :ghost="true" @click="isExportDialogShow = true">{{ $t('page.export') }}</Button>
           </div>
@@ -243,7 +243,7 @@
         v-bind="ciEntityData"
         :loading="tabloading"
         canExpand
-        keyName="id"
+        keyName="uuid"
         :fixedHeader="mode == 'dialog' || !fixedHeader ? false : true"
         :multiple="isMultiple"
         :showPager="needPage"
@@ -269,28 +269,47 @@
           </div>
           <div v-else>{{ $t('message.nothingchange') }}</div>
         </template>
-
+        <template v-slot:_error="{ row }">
+          <Poptip
+            v-if="row._error && row._error.length > 0"
+            :title="$t('page.exception')"
+            trigger="hover"
+            transfer
+          >
+            <span class="tsfont-danger-s text-error"></span>
+            <div slot="content" class="api">
+              <div v-for="(e, ei) in row._error" :key="ei">{{ e }}</div>
+            </div>
+          </Poptip>
+        </template>
         <template slot="actionType" slot-scope="{ row }">
           <div v-if="row.actionType == 'insert'">
             <b class="text-success">{{ $t('page.new') }}</b>
           </div>
           <div v-else>
-            <Dropdown v-if="needAction" :transfer="true">
-              <a href="javascript:void(0)">
+            <div v-if="needAction">
+              <Dropdown v-if="actionTypeConfig && actionTypeConfig.edit && actionTypeConfig.del" :transfer="true">
+                <a href="javascript:void(0)">
+                  <b :class="row.actionType == 'delete' ? 'text-error' : 'text-primary'">
+                    {{ row.actionType == 'delete' ? $t('page.delete') : $t('page.edit') }}
+                    <Icon type="ios-arrow-down"></Icon>
+                  </b>
+                </a>
+                <DropdownMenu slot="list">
+                  <DropdownItem v-if="actionTypeConfig && actionTypeConfig.edit">
+                    <a href="javascript:void(0)" @click="changeActionType(row, 'update')">{{ $t('page.edit') }}</a>
+                  </DropdownItem>
+                  <DropdownItem v-if="actionTypeConfig && actionTypeConfig.del">
+                    <a href="javascript:void(0)" @click="changeActionType(row, 'delete')">{{ $t('page.delete') }}</a>
+                  </DropdownItem>
+                </DropdownMenu>
+              </Dropdown>
+              <div v-else>
                 <b :class="row.actionType == 'delete' ? 'text-error' : 'text-primary'">
                   {{ row.actionType == 'delete' ? $t('page.delete') : $t('page.edit') }}
-                  <Icon type="ios-arrow-down"></Icon>
                 </b>
-              </a>
-              <DropdownMenu v-if="actionTypeConfig && (actionTypeConfig.edit || actionTypeConfig.del)" slot="list">
-                <DropdownItem v-if="actionTypeConfig && actionTypeConfig.edit">
-                  <a href="javascript:void(0)" @click="changeActionType(row, 'update')">{{ $t('page.edit') }}</a>
-                </DropdownItem>
-                <DropdownItem v-if="actionTypeConfig && actionTypeConfig.del">
-                  <a href="javascript:void(0)" @click="changeActionType(row, 'delete')">{{ $t('page.delete') }}</a>
-                </DropdownItem>
-              </DropdownMenu>
-            </Dropdown>
+              </div>
+            </div>
             <b v-if="!needAction" :class="row.actionType == 'delete' ? 'text-error' : 'text-primary'">{{ row.actionType == 'delete' ? $t('page.delete') : $t('page.edit') }}</b>
           </div>
         </template>
@@ -321,8 +340,7 @@
                 <span>{{ relentity.ciEntityName }}</span>
               </a>
             </span>
-            <span v-if="row.relEntityData[head.key]['valueList'].length > 0 && row.relEntityData[head.key]['valueList'].length > row.maxRelEntityCount" class="text-href tsfont-option-horizontal" @click="showMoreRelCiEntity(row.relEntityData[head.key])">
-            </span>
+            <span v-if="row.relEntityData[head.key]['valueList'].length > 0 && row.relEntityData[head.key]['valueList'].length > row.maxRelEntityCount" class="text-href tsfont-option-horizontal" @click="showMoreRelCiEntity(row.relEntityData[head.key])"></span>
           </div>
         </template>
         <template slot="action" slot-scope="{ row }">
@@ -451,6 +469,7 @@ export default {
     needExpand: { type: Boolean, default: false }, //是否需要展开控制列
     needCheck: { type: Boolean, default: false }, //是否需要复选框
     needCondition: { type: Boolean, default: true }, //是否需要条件
+    needError: { type: Boolean, default: false }, //是否需要错误提示
     needPage: { type: Boolean, default: true }, //是否需要分页
     needDsl: { type: Boolean, default: false }, //是否激活dsl搜索
     selectedData: { type: Array }, //已选中数据，只保存id，例如[123123123,123123123]
@@ -838,7 +857,7 @@ export default {
           if (!this.$utils.isEmpty(this.ciEntityData.tbodyList)) {
             this.ciEntityData.tbodyList.forEach(element => {
               if (element.actionType == 'delete') {
-                this.$set(element, '_expander', false);
+                this.$set(element, '#expander', false);
               }
             });
           }
@@ -1272,6 +1291,7 @@ export default {
           this.searchParam['needExpand'] = this.needExpand;
           this.searchParam['needActionType'] = this.needActionType;
           this.searchParam['needCheck'] = this.needCheck;
+          this.searchParam['needError'] = this.needError;
           this.searchParam['ciEntityList'] = this.ciEntityList;
           this.searchParam['mode'] = this.mode;
           this.searchParam['currentPage'] = 1;
@@ -1364,8 +1384,8 @@ export default {
   // 兼容暗黑模式
   padding-right: 0px !important;
 }
-.condition-grid{
-  display:grid;
+.condition-grid {
+  display: grid;
   grid-template-columns: 30% 70%;
 }
 .exportItemContainer {

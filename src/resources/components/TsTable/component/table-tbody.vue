@@ -440,7 +440,7 @@ export default {
     },
     getExpandClass() {
       return function(row) {
-        if (row['_expander'] != false) {
+        if (row['#expander'] != false) {
           if (row['_expand']) {
             return 'tsfont-minus-square';
           } else {

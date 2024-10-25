@@ -6,7 +6,12 @@
     <template v-slot>
       <div class="bg-op radius-md">
         <div style="height: 34px">
-          <FlowEditorToolbar :graph="graph" mode="graph" :readonly="true"></FlowEditorToolbar>
+          <FlowEditorToolbar
+            :graph="graph"
+            :needMinimap="true"
+            mode="graph"
+            :readonly="true"
+          ></FlowEditorToolbar>
         </div>
         <div style="height: calc(100vh - 334px)">
           <FlowEditor

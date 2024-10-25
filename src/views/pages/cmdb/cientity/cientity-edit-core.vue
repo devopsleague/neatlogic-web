@@ -573,7 +573,6 @@ export default {
       }
     },
     setGlobalAttrData(attr, opt) {
-      console.log(opt);
       if (!this.ciEntityData.globalAttrEntityData) {
         this.ciEntityData.globalAttrEntityData = {};
       }

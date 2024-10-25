@@ -17,7 +17,7 @@ const batchImport = {
     return axios.post('/api/rest/cmdb/import/files/get', params);
   },
   startImport(params) {
-    return axios.post('/api/rest/cmdb/import/fire', params);
+    return axios.post('/api/rest/cmdb/import/launch', params);
   },
   stopImport(params) {
     return axios.post('/api/rest/cmdb/import/stop', params);

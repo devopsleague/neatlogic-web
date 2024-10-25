@@ -100,9 +100,9 @@ export default {
         if (cientity.uuid == row.uuid) {
           this.$set(cientity, 'actionType', action);
           if (action == 'delete') {
-            this.$set(cientity, '_expander', false);//隐藏展开按钮，详细看table-tbody.vue中相关代码
+            this.$set(cientity, '#expander', false);//隐藏展开按钮，详细看table-tbody.vue中相关代码
           } else {
-            this.$set(cientity, '_expander', true);//显示展开按钮，详细看table-tbody.vue中相关代码
+            this.$set(cientity, '#expander', true);//显示展开按钮，详细看table-tbody.vue中相关代码
           }
           this.$forceUpdate();
         }
@@ -152,14 +152,14 @@ export default {
         ciEntityList.forEach(cientity => {
           if (type == 'add') {
             cientity['actionType'] = 'insert';
-            cientity['_expander'] = false;//隐藏展开按钮
+            cientity['#expander'] = false;//隐藏展开按钮
           } else if (type == 'import') {
             if (this.actionTypeConfig.edit) {
               cientity['actionType'] = 'update';
-              cientity['_expander'] = true;//展示展开按钮
+              cientity['#expander'] = true;//展示展开按钮
             } else if (this.actionTypeConfig.del) {
               cientity['actionType'] = 'delete';
-              cientity['_expander'] = false;//隐藏展开按钮
+              cientity['#expander'] = false;//隐藏展开按钮
             }
           }
           const index = this.entityList.findIndex(oldcientity => {
@@ -180,9 +180,9 @@ export default {
         ciEntityList.forEach(cientity => {
           const index = this.entityList.findIndex(e => e.uuid == cientity.uuid);
           if (cientity['actionType'] == 'insert' || cientity['actionType'] == 'delete') {
-            cientity['_expander'] = false;//隐藏展开按钮
+            cientity['#expander'] = false;//隐藏展开按钮
           } else if (cientity['actionType'] == 'update') {
-            cientity['_expander'] = true;//展示展开按钮
+            cientity['#expander'] = true;//展示展开按钮
           }
           if (index > -1) {
             this.$set(this.entityList, index, cientity);

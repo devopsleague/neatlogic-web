@@ -1004,6 +1004,7 @@ export default {
         const formitem = this.formItemList.find(d => d.uuid === key);
         if (formitem) {
           this.clearFormInputTableAttr(formitem, this.formData[key]);
+          //注意！所有下划线开头的属性都会被清理
           this.clearPrivateAttr(this.formData[key]);
           formItemList.push({
             attributeUuid: key,

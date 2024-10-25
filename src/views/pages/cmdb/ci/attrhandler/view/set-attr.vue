@@ -1,7 +1,8 @@
 <template>
-  <div>
+  <div v-if="value && value.length > 0">
     <Tag v-for="(v, index) in value" :key="index">{{ v }}</Tag>
   </div>
+  <div v-else>-</div>
 </template>
 <script>
 export default {
@@ -31,7 +32,7 @@ export default {
       if (this.attrEntity.actualValueList && this.attrEntity.actualValueList.length > 0) {
         return this.attrEntity.actualValueList;
       }
-      return '-';
+      return null;
     }
   },
   watch: {}

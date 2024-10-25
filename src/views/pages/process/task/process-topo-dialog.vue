@@ -10,6 +10,7 @@
             :graph="graph"
             mode="graph"
             :readonly="true"
+            :needMinimap="true"
           ></FlowEditorToolbar>
         </div>
         <div style="height: calc(100vh - 334px)">

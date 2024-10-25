@@ -2,10 +2,20 @@
   <div>
     <div v-if="config.ciIdList && config.ciIdList.length > 0" class="entity-container">
       <div v-for="(ciId, eindex) in config.ciIdList" :key="eindex" class="entity-li border-color">
-        <h4 class="text-title">
-          <span class="overflow" :title="getCiName(ciId)">{{ getCiName(ciId) }}</span>
-          <i v-if="!readonly && !disabled" class="text-href tsfont-edit ml-md" @click="showCiDialog(ciId)"></i>
-        </h4>
+        <div class="btn-grid">
+          <div>
+            <h4 class="text-title">
+              <span class="overflow" :title="getCiName(ciId)">{{ getCiName(ciId) }}</span>
+            </h4>
+          </div>
+          <div style="text-align: right">
+            <div class="action-group">
+              <div v-if="!readonly && !disabled" class="action-item tsfont-edit" @click="showCiDialog(ciId)">编辑数据</div>
+              <div v-if="!readonly && !disabled" class="action-item tsfont-download" @click="showTemplateDialog(ciId)">下载导入模板</div>
+              <div v-if="!readonly && !disabled" class="action-item tsfont-upload" @click="openFilePicker(ciId)">导入数据</div>
+            </div>
+          </div>
+        </div>
         <div v-if="mode === 'read'">
           <CiEntityList
             v-if="getCiEntityListByCiId(ciId).length > 0"
@@ -16,6 +26,7 @@
             :actionTypeConfig="actionTypeConfig"
             :needAction="readonly ? false : true"
             :needExpand="actionTypeConfig.edit"
+            :needError="true"
             :needCondition="false"
             :needPage="false"
             :formConfigList="dataConfig"
@@ -26,14 +37,13 @@
             @update="updateCiEntity"
             @changeActionType="changeActionType"
           ></CiEntityList>
-          <div v-else class="text-tip">
-            没有任何要修改的配置项
-          </div>
+          <div v-else class="text-tip">没有任何要修改的配置项</div>
+          <div v-if="importError" v-html="importError"></div>
         </div>
       </div>
     </div>
-    <div v-else>{{ $t('page.notarget',{target:$t('page.model')}) }}</div>
-    <EditCi
+    <div v-else>{{ $t('page.notarget', { target: $t('page.model') }) }}</div>
+    <EditCiMain
       v-if="!readonly && isEditCiDialogShow"
       :ciId="editCiId"
       :actionAdd="config.actionAdd || false"
@@ -41,7 +51,7 @@
       :actionDel="config.actionDel || false"
       @close="closeCiDialog"
       @save="saveCiData"
-    ></EditCi>
+    ></EditCiMain>
     <EditCiEntity
       v-if="!readonly && isEditCiEntityDialogShow && rootCiId"
       :ciEntityData="editCiEntityData"
@@ -51,6 +61,14 @@
       @save="saveCiEntityData"
       @cancel="closeCiDialog"
     ></EditCiEntity>
+    <ImportTemplate v-if="isTemplateShow" :ciId="editCiId" @close="closeTemplateDialog"></ImportTemplate>
+    <input
+      ref="fileInput"
+      type="file"
+      accept=".xls, .xlsx"
+      style="display: none"
+      @change="analyExcel"
+    />
   </div>
 </template>
 <script>
@@ -61,8 +79,9 @@ import CiEntityList from '@/views/pages/cmdb/cientity/cientity-list.vue';
 export default {
   name: '',
   components: {
-    EditCi: () => import('./edit-ci.vue'),
+    EditCiMain: () => import('./edit-cientity-main.vue'),
     EditCiEntity: () => import('./edit-cientity.vue'),
+    ImportTemplate: () => import('@/views/pages/cmdb/form/component/formcientitymodify/import-template.vue'),
     CiEntityList
     //CiEntityList: resolve => require(['@/views/pages/cmdb/cientity/cientity-list.vue', resolve])
   },
@@ -74,6 +93,7 @@ export default {
   },
   data() {
     return {
+      isTemplateShow: false,
       isShowExpend: true,
       needExpendAll: false,
       // dataConfig: [], // 内容列表
@@ -82,7 +102,9 @@ export default {
       isEditCiEntityDialogShow: false,
       editCiId: null, //编辑哪一个模型
       editCiEntityData: {}, //编辑哪一个配置项
-      entityList: [] //所有需要修改的配置项信息
+      entityList: [], //所有需要修改的配置项信息
+      importError: null,
+      attrMap: {} //属性列表，用于前端校验
     };
   },
   beforeCreate() {},
@@ -99,13 +121,63 @@ export default {
   beforeDestroy() {},
   destroyed() {},
   methods: {
+    //对外校验方法
+    async validData(validConifg) {
+      const errorList = await this.validateCiEntityAttr();
+      if (errorList && errorList.length > 0) {
+        const returnList = [];
+        errorList.forEach(error => {
+          returnList.push({
+            uuid: this.formItem.uuid,
+            error: error
+          });
+        });
+        return returnList;
+      }
+      return [];
+    },
+    openFilePicker(ciId) {
+      this.editCiId = ciId;
+      this.$refs.fileInput.click();
+    },
+    analyExcel(event) {
+      const file = event.target.files[0];
+      if (file) {
+        let formData = new FormData();
+        formData.append('file', file);
+        formData.append('ciId', this.editCiId);
+        formData.append('param', 'file');
+        formData.append('type', 'cientityformimport');
+        this.$api.cmdb.cientity
+          .importCiEntity(formData)
+          .then(res => {
+            const result = res.Return.analyzedResult;
+            if (result) {
+              if (result.successList) {
+                result.successList.forEach(cientity => {
+                  this.$delete(cientity, 'id');
+                  cientity['rootCiId'] = this.rootCiId;
+                  cientity['actionType'] = 'insert';
+                  cientity['#expander'] = false; //隐藏展开按钮
+                  this.entityList.push(cientity);
+                });
+              }
+              this.importError = result.error;
+            }
+          })
+          .finally(() => {
+            //清空文本框的选择
+            this.$refs.fileInput.value = '';
+          });
+      }
+    },
     validConfig() {
       const errorList = this.validDataForAllItem();
       if (!this.config.ciId) {
         errorList.push({ field: 'ciId', error: '请选择模型' });
       }
       if (!this.config.actionAdd && !this.config.actionEdit && !this.config.actionDel) {
-        errorList.push({field: 'dataConfig', error: '至少要选择一个可操作的字段'});
+        errorList.push({ field: 'dataConfig', error: '至少要选择一个可操作的字段' });
       }
       return errorList;
     },
@@ -117,9 +189,9 @@ export default {
         if (cientity.uuid == row.uuid) {
           this.$set(cientity, 'actionType', action);
           if (action == 'delete') {
-            this.$set(cientity, '_expander', false); //隐藏展开按钮，详细看table-tbody.vue中相关代码
+            this.$set(cientity, '#expander', false); //隐藏展开按钮，详细看table-tbody.vue中相关代码
           } else {
-            this.$set(cientity, '_expander', true); //显示展开按钮，详细看table-tbody.vue中相关代码
+            this.$set(cientity, '#expander', true); //显示展开按钮，详细看table-tbody.vue中相关代码
           }
           this.$forceUpdate();
         }
@@ -132,6 +204,16 @@ export default {
         }
       });
     },
+    async getAttrByCiId(ciIdList) {
+      if (ciIdList && ciIdList.length > 0) {
+        for (let i = 0; i < ciIdList.length; i++) {
+          const ciId = ciIdList[i];
+          await this.$api.cmdb.ci.getAttrByCiId(ciId).then(res => {
+            this.attrMap[ciId] = res.Return;
+          });
+        }
+      }
+    },
     expandAllDiffContent() {
       // 全部展开
       this.$refs.CiEntityList[0].expandAllDiffContent(this.isShowExpend);
@@ -141,9 +223,17 @@ export default {
       this.editCiId = ciId;
       this.isEditCiDialogShow = true;
     },
+    showTemplateDialog(ciId) {
+      this.editCiId = ciId;
+      this.isTemplateShow = true;
+    },
     closeCiDialog() {
       this.editCiId = null;
       this.isEditCiDialogShow = false;
+    },
+    closeTemplateDialog() {
+      this.editCiId = null;
+      this.isTemplateShow = false;
     },
     closeCiEntityDialog() {
       this.editCiId = null;
@@ -156,14 +246,14 @@ export default {
         ciEntityList.forEach(cientity => {
           if (type == 'add') {
             cientity['actionType'] = 'insert';
-            cientity['_expander'] = false; //隐藏展开按钮
+            cientity['#expander'] = false; //隐藏展开按钮
           } else if (type == 'import') {
             if (this.actionTypeConfig.edit) {
               cientity['actionType'] = 'update';
-              cientity['_expander'] = true; //展示展开按钮
+              cientity['#expander'] = true; //展示展开按钮
             } else if (this.actionTypeConfig.del) {
               cientity['actionType'] = 'delete';
-              cientity['_expander'] = false; //隐藏展开按钮
+              cientity['#expander'] = false; //隐藏展开按钮
             }
           }
           const index = this.entityList.findIndex(oldcientity => {
@@ -184,9 +274,9 @@ export default {
         ciEntityList.forEach(cientity => {
           const index = this.entityList.findIndex(e => e.uuid == cientity.uuid);
           if (cientity['actionType'] == 'insert' || cientity['actionType'] == 'delete') {
-            cientity['_expander'] = false; //隐藏展开按钮
+            cientity['#expander'] = false; //隐藏展开按钮
           } else if (cientity['actionType'] == 'update') {
-            cientity['_expander'] = true; //展示展开按钮
+            cientity['#expander'] = true; //展示展开按钮
           }
           if (index > -1) {
             this.$set(this.entityList, index, cientity);
@@ -214,6 +304,57 @@ export default {
         this.editCiId = ciEntity.ciId;
         this.isEditCiEntityDialogShow = true;
       }
+    },
+    async validateCiEntityAttr() {
+      const errorSet = new Set();
+      //获取所有配置项的起始模型id，如果是级联添加的配置项这里不校验了，因为也没地方显示，将来有需要再考虑
+      const ciIdList = [...new Set(this.entityList.map(d => d.rootCiId))];
+      if (ciIdList.length === 0) {
+        return;
+      }
+      //根据模型id获取属性
+      await this.getAttrByCiId(ciIdList);
+      //清空配置项异常
+      this.entityList.forEach(cientity => {
+        this.$set(cientity, '_error', null);
+      });
+
+      //开始校验
+      ciIdList.forEach(ciId => {
+        const attrList = this.attrMap[ciId];
+        if (attrList && attrList.length > 0) {
+          //校验属性唯一
+          const uniqueAttrList = this.attrMap[ciId].filter(v => v.isUnique);
+          const currentCiEntityList = this.getCiEntityListByCiId(ciId);
+          if (uniqueAttrList.length > 0 && currentCiEntityList.length > 0) {
+            const checkSet = {};
+            uniqueAttrList.forEach(attr => {
+              currentCiEntityList.forEach(cientity => {
+                const attrEntity = cientity.attrEntityData['attr_' + attr.id];
+                const valueList = attrEntity && attrEntity.valueList;
+                if (valueList && valueList.length > 0) {
+                  const v = valueList.join(',');
+                  if (!checkSet[v]) {
+                    checkSet[v] = [];
+                  }
+                  checkSet[v].push(cientity);
+                }
+              });
+              for (let key in checkSet) {
+                if (checkSet[key].length > 1) {
+                  checkSet[key].forEach(cientity => {
+                    this.$set(cientity, '_error', ['属性“' + attr.label + '”的值必须唯一']);
+                    errorSet.add('属性“' + attr.label + '”的值必须唯一');
+                  });
+                }
+              }
+            });
+          }
+          //
+        }
+      });
+
+      return [...errorSet];
     },
     deleteCiEntity(ciEntity) {
       if (ciEntity && ciEntity.uuid && this.entityList && this.entityList.length > 0) {
@@ -283,8 +424,11 @@ export default {
     getCiEntityListByCiId() {
       return function(ciId) {
         if (this.entityList && this.entityList.length > 0) {
-          const returnList = this.entityList.filter(cientity => {
-            return cientity.rootCiId === ciId && !cientity._isnew;
+          const returnList = [];
+          this.entityList.forEach(cientity => {
+            if (cientity.rootCiId === ciId && !cientity._isnew) {
+              returnList.push(cientity);
+            }
           });
           return returnList;
         } else {
@@ -321,5 +465,9 @@ export default {
       }
     }
   }
+}
+.btn-grid {
+  display: grid;
+  grid-template-columns: auto auto;
 }
 </style>

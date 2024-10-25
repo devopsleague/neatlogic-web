@@ -17,6 +17,19 @@
     <div class="action-item tsfont-search-minus" @click="graph.zoom(-0.1)"></div>
     <div class="action-item tsfont-search" @click="graph.zoomTo(1)"></div>
     <div class="action-item tsfont-center" @click="graph.zoomToFit({ padding: 10 })"></div>
+    <div v-if="needMinimap" class="action-item ">
+      <Poptip
+        v-model="showMinimap" 
+        title="小地图"
+        placement="bottom"
+        width="350"
+        :transfer="true"
+      >
+        <span class="tsfont-circulation-o"></span>
+        <div slot="content" ref="minimap">
+        </div>
+      </Poptip>
+    </div>
     <div v-if="!readonly && (selectedNode || selectedEdge)" class="action-item"><Divider type="vertical"></Divider></div>
     <div v-if="!readonly && (selectedNode || selectedEdge)" class="action-item tsfont-trash-o" @click="deleteSelected()"></div>
     <div v-if="!readonly && selectedNode" class="action-item"><Divider type="vertical"></Divider></div>
@@ -36,6 +49,7 @@
 </template>
 <script>
 import { Graph, Node, Edge } from '@antv/x6';
+import { MiniMap } from '@antv/x6-plugin-minimap';
 
 export default {
   name: '',
@@ -49,6 +63,7 @@ export default {
         return ['graph', 'template'].includes(value);
       }
     },
+    needMinimap: { type: Boolean, default: false },
     readonly: { type: Boolean, default: false },
     graph: { type: Graph }, //图形实例，非数据
     selectedNode: { type: Node },
@@ -58,7 +73,9 @@ export default {
     return {
       canRedo: false,
       canUndo: false,
-      isBind: false
+      isBind: false,
+      showMinimap: false,
+      miniMap: null
     };
   },
   beforeCreate() {},
@@ -127,14 +144,30 @@ export default {
   filter: {},
   computed: {},
   watch: {
+    showMinimap: {
+      handler: function(val) {
+        if (this.graph) {
+          if (val) {
+            this.$nextTick(() => {
+              this.miniMap = new MiniMap({
+                container: this.$refs['minimap']
+              });
+              this.graph.use(this.miniMap);
+            });
+          } else if (this.miniMap) {
+            this.miniMap.dispose();
+            this.miniMap = null;
+          }
+        }
+      }
+    },
     graph: {
       handler: function(val) {
-        if (val && !this.isBind) {
+        if (val) {
           this.graph.on('history:change', () => {
             this.canRedo = this.graph.canRedo();
             this.canUndo = this.graph.canUndo();
           });
-          this.isBind = true;
         }
       },
       immediate: true

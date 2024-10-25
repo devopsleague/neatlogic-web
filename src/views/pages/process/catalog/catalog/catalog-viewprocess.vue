@@ -5,6 +5,7 @@
         <FlowEditorToolbar
           :graph="graph"
           mode="graph"
+          :needMinimap="true"
           :readonly="true"
         ></FlowEditorToolbar>
       </div>
