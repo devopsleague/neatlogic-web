@@ -206,7 +206,6 @@ export default {
     classKey: {
       type: [String, Array]
     },
-    scrollLeft: Number,
     offsetWidth: Number,
     hideAction: {
       //是否可以收起浮动操作栏
@@ -251,7 +250,8 @@ export default {
       actionstatusList: [], //操作栏是否展开状态
       cellWidthList: [], //每一行的每个单元格的宽度数组集合
       tableWidth: '100%',
-      list: []
+      list: [],
+      scrollLeft: 0
     };
   },
   beforeCreate() {},
