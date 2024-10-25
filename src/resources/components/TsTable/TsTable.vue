@@ -1290,6 +1290,7 @@ export default {
             this.activeAutoScroll();
           }
         });
+        this.getSelectList();
       },
       deep: true,
       immediate: true
