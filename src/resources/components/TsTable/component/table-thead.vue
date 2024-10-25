@@ -68,7 +68,6 @@ export default {
     sortList: [Boolean, Array],
     canResize: Boolean,
     canDrag: Boolean,
-    scrollLeft: Number,
     tbodyList: Array,
     selectList: Array,
     sortSetting: Object,
@@ -97,6 +96,7 @@ export default {
   },
   data() {
     return {
+      scrollLeft: 0
     };
   },
   beforeCreate() {},
