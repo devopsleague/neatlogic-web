@@ -34,7 +34,7 @@
               <!--由于最后一个formitem去掉了margin-bottom，这里补充回来-->
               <TsFormInput v-model="propertyLocal.config.defaultValue" :validateList="propertyLocal.config.validate? [propertyLocal.config.validate]:[]" :type="propertyLocal.handler.replace('form', '')"></TsFormInput>
             </TsFormItem>
-            <TsFormItem :label="$t('page.viewtarget',{'target':$t('page.auth')})">
+            <TsFormItem v-if="propertyLocal.handler === 'formpassword'" :label="$t('page.viewtarget',{'target':$t('page.auth')})">
               <UserSelect
                 :value="propertyLocal.config.viewPasswordAuthorityList"
                 :multiple="true"
@@ -242,6 +242,7 @@
             <TsFormItem :label="$t('term.framework.thsetting')" required>
               <TableConfig
                 ref="formitem_table"
+                :formItemList="allFormItemList"
                 :config="propertyLocal.config"
                 :source="source"
                 @setDataConfig="(dataConfig)=>{
@@ -624,6 +625,9 @@ export default {
 
       if (!this.propertyLocal.reaction) {
         this.$set(this.propertyLocal, 'reaction', this.$utils.deepClone(this.reaction));
+        if (['formselect', 'formradio', 'formcheckbox'].includes(this.propertyLocal.handler)) {
+          this.$set(this.propertyLocal.reaction, 'filter', {});
+        }
       } else {
         Object.keys(this.reaction).forEach((key) => {
           if (!this.propertyLocal.reaction.hasOwnProperty(key)) {

@@ -281,6 +281,7 @@ export default {
             'formDataForWatch',
             (newValue, oldValue) => {
               this.enqueueReaction(this.componentUuid, () => {
+                // console.log('开始单个处理');
                 const newVal = newValue && JSON.parse(newValue);
                 const oldVal = oldValue && JSON.parse(oldValue);
                 for (let action in this.formItem.reaction) {
@@ -478,6 +479,7 @@ export default {
     formDataForWatch() {
       if (this.needWatch && this.formData) {
         const str = JSON.stringify(this.formData);
+        // console.log('formDataForWatch', new Date());
         return str;
       }
       return null;
