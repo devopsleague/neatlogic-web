@@ -350,10 +350,43 @@ export default {
               }
             });
           }
-          //
+          //校验唯一规则
+          const ciUniqueAttrList = this.attrMap[ciId].filter(v => v.isCiUnique);
+          if (ciUniqueAttrList && ciUniqueAttrList.length > 0) {
+            const checkSet = {};
+            currentCiEntityList.forEach(cientity => {
+              let combinevalue = '';
+              ciUniqueAttrList.forEach(attr => {
+                const attrEntity = cientity.attrEntityData['attr_' + attr.id];
+                const valueList = attrEntity && attrEntity.valueList;
+                if (valueList && valueList.length > 0) {
+                  const v = valueList.join(',');
+                  if (combinevalue) {
+                    combinevalue += '#';
+                  }
+                  combinevalue += v;
+                }
+              });
+              if (!checkSet[combinevalue]) {
+                checkSet[combinevalue] = [];
+              }
+              checkSet[combinevalue].push(cientity);
+            });
+            for (let key in checkSet) {
+              if (checkSet[key].length > 1) {
+                checkSet[key].forEach(cientity => {
+                  if (cientity['_error']) {
+                    cientity['_error'].push('唯一规则出现重复');
+                  } else {
+                    this.$set(cientity, '_error', ['唯一规则出现重复']);
+                  }
+                  errorSet.add('唯一规则出现重复');
+                });
+              }
+            }
+          }
         }
       });
-
       return [...errorSet];
     },
     deleteCiEntity(ciEntity) {
