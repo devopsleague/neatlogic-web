@@ -5,7 +5,7 @@
         <span v-if="$hasBack()" class="tsfont-left text-action" @click="$back()">{{ $getFromPage() }}</span>
       </template>
       <template slot="topLeft">
-        <span class="text-action tsfont-plus" @click="editTemplate()">{{ $t('dialog.title.addtarget', { target: $t('page.template') }) }}</span>
+        <span class="text-action tsfont-plus" @click="editTemplate()">{{ $t('page.template') }}</span>
       </template>
       <template v-slot:content>
         <TsTable :tbodyList="tbodyList" :theadList="theadList">

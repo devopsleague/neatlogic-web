@@ -1,6 +1,11 @@
 <template>
   <div>
     <TsContain>
+      <template v-slot:topLeft>
+        <div class="action-group">
+          <div class="action-item tsfont-plus" @click="addProject()">{{ $t('term.rdm.project') }}</div>
+        </div>
+      </template>
       <template v-slot:content>
         <TsTable
           v-bind="projectData"
@@ -34,17 +39,20 @@
         </TsTable>
       </template>
     </TsContain>
+    <ProjectEditDialog v-if="isProjectDialogShow" @close="closeProjectDialog"></ProjectEditDialog>
   </div>
 </template>
 <script>
 export default {
   name: '',
   components: {
+    ProjectEditDialog: () => import('@/views/pages/rdm/project/project-add-dialog.vue'),
     TsTable: () => import('@/resources/components/TsTable/TsTable.vue')
   },
   props: {},
   data() {
     return {
+      isProjectDialogShow: false,
       theadList: [
         {
           key: 'name',
@@ -97,6 +105,15 @@ export default {
   beforeDestroy() {},
   destroyed() {},
   methods: {
+    closeProjectDialog(needRefresh) {
+      this.isProjectDialogShow = false;
+      if (needRefresh) {
+        this.searchProject(1);
+      }
+    },
+    addProject() {
+      this.isProjectDialogShow = true;
+    },
     editProject(project) {
       this.$router.push({ path: '/project-edit/' + project.id });
     },

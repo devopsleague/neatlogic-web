@@ -145,7 +145,7 @@ export default {
           label: this.$t('page.color')
         },
         {
-          type: 'textarea',
+          type: 'ckeditor',
           name: 'description',
           label: this.$t('term.rdm.peojectdesc'),
           maxlength: 500

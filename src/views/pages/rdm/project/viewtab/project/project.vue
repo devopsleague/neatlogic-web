@@ -9,7 +9,7 @@
       </template>
       <template v-slot:content>
         <h2>{{ projectData.name }}</h2>
-        <div class="mt-md mb-md text-grey">{{ projectData.description }}</div>
+        <div class="mt-md mb-md text-grey" v-html="projectData.description"></div>
         <div>
           <div>
             <h3 class="text-grey">{{ $t('term.rdm.projectmember') }}</h3>
