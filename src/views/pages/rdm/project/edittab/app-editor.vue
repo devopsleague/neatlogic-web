@@ -6,7 +6,7 @@
       :appData="appData"
     ></component>
   </div>
-  <div v-else><Alert>{{ $t('term.rdm.noconfig') }}</Alert></div>
+  <div v-else class="padding-md"><Alert>{{ $t('term.rdm.noconfig') }}</Alert></div>
 </template>
 <script>
 import * as editor from './index.js';
