@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="cientity-list-box">
     <div v-if="!ciEntityData.error">
       <div class="condition-grid mb-nm">
         <div>
@@ -48,7 +48,7 @@
         <Card
           v-if="advencedSearchMode == 'condition'"
           dis-hover
-          class="radius-md"
+          class="radius-md cientity-search-card"
           style="margin-bottom: 10px"
         >
           <TsRow style="max-height: 250px; overflow-y: auto; overflow-x: hidden">
@@ -1406,14 +1406,17 @@ export default {
     background: @default-table-hover-color;
   }
 }
-.search-item {
-  height: 40px;
-  line-height: 38px;
-  .search-label {
-    text-align: right;
+.cientity-list-box {
+  .cientity-search-card {
+      .search-item {
+      height: 40px !important;
+      line-height: 38px;
+      .search-label {
+        text-align: right;
+      }
+    }
   }
 }
-
 /deep/.ivu-card-body {
   .clearfix {
     height: initial !important;

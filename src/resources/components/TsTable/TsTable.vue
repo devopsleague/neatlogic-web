@@ -16,6 +16,7 @@
         <table class="table-top tstable-body" :style="setLayout" :class="{ fixtop: scrollTop && scrollTop > 0 }">
           <ColGroup :list="colsList" :canResize="canResize"></ColGroup>
           <THead
+            ref="theadRef"
             :columnList="columnList"
             :list="showThList"
             :keyName="keyName"
@@ -24,7 +25,6 @@
             :tbodyList="tbodyList"
             :selectList="selectedIndexList"
             :sortSetting="sortSetting"
-            :scrollLeft="scrollLeft"
             :sortConfig="sortConfig"
             :canResize="canResize"
             :canDrag="canDrag"
@@ -40,6 +40,7 @@
           </THead>
           <TBody
             v-if="showThList.length > 0 && tbodyList.length > 0"
+            ref="tbodyRef"
             :tbodyList="tbodyList"
             :columnList="columnList"
             :colsList="colsList"
@@ -50,7 +51,6 @@
             :hideAction="hideAction"
             :keyName="keyName"
             :classKey="classKey"
-            :scrollLeft="scrollLeft"
             :canExpand="canExpand"
             :offsetWidth="offsetWidth"
             :multiple="isMultiple"
@@ -84,6 +84,8 @@
       <!-- 用于做固定的表头_end -->
       <div
         ref="tablemain"
+        v-scrollHidden
+        v-custom-scrollbar
         class="tstable-main bg-op"
         :class="{ 'table-radius-main': !rowNum || !pageSize || !showPager }"
         :style="setTableheight"
@@ -94,6 +96,7 @@
         <table ref="tstable" class="table-main tstable-body" :style="setLayout">
           <ColGroup :list="colsList"></ColGroup>
           <THead
+            ref="theadRef"
             :theme="theme"
             :columnList="columnList"
             :list="showThList"
@@ -102,7 +105,6 @@
             :tbodyList="tbodyList"
             :selectList="selectedIndexList"
             :sortSetting="sortSetting"
-            :scrollLeft="scrollLeft"
             :sortConfig="sortConfig"
             :canResize="canResize"
             :canDrag="canDrag"
@@ -121,6 +123,7 @@
           </THead>
           <TBody
             v-if="showThList.length > 0 && tbodyList.length > 0"
+            ref="tbodyRef"
             :columnList="columnList"
             :colsList="colsList"
             :tbodyList="tbodyList"
@@ -133,7 +136,6 @@
             :keyName="keyName"
             :classKey="classKey"
             :multiple="isMultiple"
-            :scrollLeft="scrollLeft"
             :offsetWidth="offsetWidth"
             isMain
             :canExpand="canExpand"
@@ -727,14 +729,19 @@ export default {
       this.$refs['tablemain'].scrollTop = st;
     },
     scrollTable: function(e) {
-      if (this.fixedHeader) { 
-        //数据大，会导致卡顿
-        let sTop = e.srcElement.scrollTop;
-        let sLeft = e.srcElement.scrollLeft;
-        this.scrollTop = sTop;
-        this.scrollLeft = sLeft;
-        this.$emit('scroll', sTop);
+      let sTop = e.srcElement.scrollTop;
+      let sLeft = e.srcElement.scrollLeft;
+      this.scrollTop = sTop;
+      this.scrollLeft = sLeft;
+      let tbodyRef = this.$refs['tbodyRef'];
+      let theadRef = this.$refs['theadRef'];
+      if (tbodyRef) {
+        tbodyRef.scrollLeft = sLeft;// 解决表格列很多，拖动水平滚动条会卡顿问题
       }
+      if (theadRef) {
+        theadRef.scrollLeft = sLeft;
+      }
+      this.$emit('scroll', sTop);
     },
     unActiveAutoScroll: function() {
       if (this.scrollTimmer) {
