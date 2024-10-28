@@ -319,6 +319,35 @@ export default {
           }
         }
       }
+      return [...errorList, ...this.validAttrUnique()];
+    },
+    validAttrUnique() {
+      // 校验属性是否唯一
+      let errorList = [];
+      let {uniqueRuleConfig = [], dataConfig = []} = this.config || {};
+      if (uniqueRuleConfig.length == 0) {
+        return errorList;
+      }
+      let attrLabel = dataConfig.filter((v) => v['uuid'] && uniqueRuleConfig.includes(v['uuid']) && v.label).map((item) => item.label).join(',');
+      let tempValue = '';
+      let existList = [];
+      this.tableData.tbodyList.forEach((row) => {
+        if (!this.$utils.isEmpty(row)) {
+          tempValue = '';
+          Object.keys(row).forEach((key, index) => {
+            if (uniqueRuleConfig.includes(key) && row[key]) {
+              tempValue += `${JSON.stringify(row[key])}${index < uniqueRuleConfig.length - 1 ? '_' : ''}`;
+            }
+          });
+          if (tempValue) {
+            if (existList.includes(tempValue)) {
+              errorList.push({ uuid: uniqueRuleConfig[0], error: `属性唯一：${attrLabel}必须唯一` });
+            } else {
+              existList.push(tempValue);
+            }
+          }
+        }
+      });
       return errorList;
     },
     changeRow(val, uuid, row) {

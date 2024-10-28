@@ -103,6 +103,17 @@
         </div>
       </div>
     </div>
+    <TsFormItem :label="$t('term.cmdb.uniquerule')" tooltip="根据属性设置，筛选出所有标记为'是否唯一'的属性，根据选择的属性作为表格行的唯一性校验。" labelPosition="top">
+      <TsFormCheckbox
+        :value="config.uniqueRuleConfig"
+        :dataList="handleUniqueRuleConfigDataList"
+        class="checkbox-unique-rule-box"
+        :disabled="disabled"
+        @on-change="val => {
+          setConfig('uniqueRuleConfig', val);
+        }"
+      ></TsFormCheckbox>
+    </TsFormItem>
     <TsFormItem :label="$t('term.framework.defalinenum')" labelPosition="top">
       <TsFormInput
         :value="config.lineNumber"
@@ -135,7 +146,8 @@ export default {
     TsFormItem: () => import('@/resources/plugins/TsForm/TsFormItem'),
     AttrConfigDialog: () => import('./formtableinputer-attr-config-dialog.vue'),
     TsFormSwitch: () => import('@/resources/plugins/TsForm/TsFormSwitch'),
-    TsFormInput: () => import('@/resources/plugins/TsForm/TsFormInput')
+    TsFormInput: () => import('@/resources/plugins/TsForm/TsFormInput'),
+    TsFormCheckbox: () => import('@/resources/plugins/TsForm/TsFormCheckbox')
   },
   extends: base,
   props: {},
@@ -213,7 +225,19 @@ export default {
     }
   },
   filter: {},
-  computed: {},
+  computed: {
+    handleUniqueRuleConfigDataList() {
+      let dataList = [];
+      let {dataConfig = [] } = this.config;
+      dataConfig.forEach(item => {
+        let {isUnique = false} = item.config || {};
+        if (isUnique) {
+          dataList.push({ text: item.label, value: item.uuid });
+        }
+      });
+      return dataList.length > 0 ? dataList : [];
+    }
+  },
   watch: {
   }
 };
@@ -221,6 +245,11 @@ export default {
 <style lang="less" scoped>
 /deep/ .ivu-checkbox-wrapper {
   margin-right: 0;
+}
+.checkbox-unique-rule-box {
+  /deep/ .ivu-checkbox-wrapper {
+    margin-right: 8px;
+  }
 }
 .th-setting {
   .title {
