@@ -3,6 +3,13 @@
     <template v-slot>
       <div>
         <TsForm ref="formitem_formConfig" v-model="propertyLocal" :item-list="formConfig">
+          <template v-slot:isUnique>
+            <TsFormSwitch
+              v-model="propertyLocal.config.isUnique"
+              :trueValue="true"
+              :falseValue="false"
+            ></TsFormSwitch>
+          </template>
           <template v-slot:isRequired>
             <TsFormSwitch
               v-model="propertyLocal.config.isRequired"
@@ -498,7 +505,16 @@ export default {
             { text: this.$t('page.uploadattachment'), value: 'formupload' },
             { text: this.$t('term.cmdb.expression'), value: 'formexpression' }
           ],
-          validateList: ['required']
+          validateList: ['required'],
+          onChange: (val) => {
+            this.handleUniqueAttrHidden(val);
+          }
+        },
+        {
+          name: 'isUnique',
+          label: this.$t('page.isunique'),
+          type: 'slot',
+          isHidden: true
         },
         {
           name: 'isRequired',
@@ -644,6 +660,14 @@ export default {
       if (this.propertyLocal.handler != 'formtable') {
         this.$set(this.reactionName, 'setvalue', this.$t('term.framework.conditionassignment'));
         this.$set(this.propertyLocal.reaction, 'setvalue', this.propertyLocal.reaction.setvalue || {});
+      }
+      this.handleUniqueAttrHidden(this.propertyLocal.handler);
+    },
+    handleUniqueAttrHidden(handler) {
+      // 判断唯一属性是否显示
+      let findItem = this.formConfig.find((v) => v.name == 'isUnique');
+      if (findItem) {
+        findItem.isHidden = !(handler && !['formupload', 'formexpression', 'formtable'].includes(handler));
       }
     },
     close() {

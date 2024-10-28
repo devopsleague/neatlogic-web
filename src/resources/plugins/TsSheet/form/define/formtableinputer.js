@@ -21,7 +21,8 @@ export default {
     isShowNumber: true,
     isCanDrag: true,
     lineNumber: 1,
-    isCanAdd: true
+    isCanAdd: true,
+    uniqueRuleConfig: [] // 唯一规则配置
   },
   reaction: {
     mask: {},
