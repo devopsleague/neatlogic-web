@@ -6,6 +6,14 @@
           <template v-slot:isRequired>
             <TsFormSwitch v-model="propertyLocal.config.isRequired" :trueValue="true" :falseValue="false"></TsFormSwitch>
           </template>
+          <template v-slot:isReadOnly>
+            <TsFormSwitch
+              v-model="propertyLocal.config.isReadOnly"
+              :trueValue="true"
+              :falseValue="false"
+              :disabled="propertyLocal.handler === 'formexpression'? true : false"
+            ></TsFormSwitch>
+          </template>
           <template v-if="['formtext', 'formtextarea'].includes(propertyLocal.handler)" v-slot:config>
             <TsFormItem :label="$t('page.inputtip')">
               <TsFormInput v-model="propertyLocal.config.placeholder" :maxlength="50"></TsFormInput>
@@ -419,6 +427,11 @@ export default {
         {
           name: 'isRequired',
           label: this.$t('page.require'),
+          type: 'slot'
+        },
+        {
+          name: 'isReadOnly',
+          label: this.$t('page.readonly'),
           type: 'slot'
         },
         {
