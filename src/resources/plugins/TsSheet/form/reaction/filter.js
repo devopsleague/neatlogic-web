@@ -11,14 +11,14 @@ export default ({ reaction, view }) => {
         let textList = [];
         let currentFormData = view.formData[formItemUuid];
         if (currentFormData instanceof Array) {
-          view.formData[formItemUuid].forEach(value => {
-            const { text, value: tmpValue } = view.handleFilterValue(value, column, formItem);
-            valueList.push(tmpValue);
+          view.formData[formItemUuid].forEach(val => {
+            const { text, value } = view.handleFilterValue(val, column, formItem);
+            valueList.push(value);
             textList.push(text);
           });
         } else if (!view.$utils.isEmpty(currentFormData)) {
-          const { text, value: tmpValue } = view.handleFilterValue(currentFormData, column, formItem);
-          valueList.push(tmpValue);
+          const { text, value } = view.handleFilterValue(currentFormData, column, formItem);
+          valueList.push(value);
           textList.push(text);
         }
         if (valueList.length > 0) {
