@@ -26,7 +26,7 @@
                 <th v-if="!disabled"></th>
                 <th class="first-td">属性/关系</th>
                 <th>
-                  <span>显示</span>
+                  <span><Checkbox :value="isAllSelectionShow" :disabled="disabled || $utils.isEmpty(config.dataConfig)" @click.prevent.native="handleCheckAll('isShow')">显示</Checkbox></span>
                   <span>
                     <Poptip
                       trigger="hover"
@@ -40,7 +40,7 @@
                   </span>
                 </th>
                 <th>
-                  <span>编辑</span>
+                  <span><Checkbox :value="isAllSelectionEdit" :disabled="disabled || $utils.isEmpty(config.dataConfig)" @click.prevent.native="handleCheckAll('isEdit')">编辑</Checkbox></span>
                   <span>
                     <Poptip
                       trigger="hover"
@@ -150,10 +150,47 @@ export default {
         this.config.ciIdList = [];
         this.config.dataConfig = [];
       }
+    },
+    handleCheckAll(type) {
+      const selection = type === 'isShow' ? this.$utils.deepClone(this.isAllSelectionShow) : this.$utils.deepClone(this.isAllSelectionEdit);
+      if (!this.$utils.isEmpty(this.config.dataConfig)) {
+        this.config.dataConfig.forEach((item) => {
+          item[type] = !selection;
+        });
+      }
     }
   },
   filter: {},
-  computed: {},
+  computed: {
+    isAllSelectionShow() {
+      let selection = true;
+      if (this.$utils.isEmpty(this.config.dataConfig)) {
+        selection = false;
+      } else {
+        for (let i = 0; i < this.config.dataConfig.length; i++) {
+          if (!this.config.dataConfig[i].isShow) {
+            selection = false;
+            break;
+          }
+        }
+      }
+      return selection;
+    },
+    isAllSelectionEdit() {
+      let selection = true;
+      if (this.$utils.isEmpty(this.config.dataConfig)) {
+        selection = false;
+      } else {
+        for (let i = 0; i < this.config.dataConfig.length; i++) {
+          if (!this.config.dataConfig[i].isEdit) {
+            selection = false;
+            break;
+          }
+        }
+      }
+      return selection;
+    }
+  },
   watch: {}
 };
 </script>
