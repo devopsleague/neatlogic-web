@@ -5,21 +5,19 @@
       border="border"
       :siderWidth="300"
       :enableCollapse="true"
-    ><template v-slot:navigation>
-       <span class="tsfont-plus text-action" @click="addRoot()">{{ $t('page.rootdirectory') }}</span>
-     </template>
+    >
+      <template v-slot:navigation>
+        <span class="tsfont-plus text-action" @click="addRoot()">{{ $t('page.rootdirectory') }}</span>
+      </template>
       <template v-slot:topLeft>
         <span>{{ catalogName }}</span>
       </template>
       <template v-slot:topRight>
         <div class="action-group">
-          <span
-            v-if="catalogData.uuid !== '' || channelData.uuid !== ''"
-            class="action-item tsfont-trash-o"
-            :class="handleClassName"
-            @click="handleDelete()"
-          >{{ $t('page.delete') }}</span>
-          <span :class="{ disable: disabledConfig.saving }" class="action-item tsfont-save" @click="saveCurrent()">{{ $t('page.save') }}</span>
+          <div v-if="catalogData.uuid !== '' || channelData.uuid !== ''" class="action-item">
+            <Button :disabled="handleClassName" type="error" @click="handleDelete()">{{ $t('page.delete') }}</Button>
+          </div>
+          <div class="action-item"><Button type="primary" :disabled="disabledConfig.saving" @click="saveCurrent()">{{ $t('page.save') }}</Button></div>
         </div>
       </template>
       <template v-slot:sider>
@@ -111,28 +109,28 @@ export default {
         {
           icon: 'tsfont-plus',
           desc: this.$t('page.subdirectory'),
-          isAddFn: (treeNode) => {
+          isAddFn: treeNode => {
             if (treeNode.type == 'catalog') {
               return true;
             } else {
               return false;
             }
           },
-          clickFn: (treeNode) => {
+          clickFn: treeNode => {
             this.addCatalogChildren(treeNode);
           }
         },
         {
           icon: 'tsfont-flow-children',
           desc: this.$t('dialog.title.addtarget', { target: this.$t('term.process.catalog') }),
-          isAddFn: (treeNode) => {
+          isAddFn: treeNode => {
             if (treeNode.type == 'catalog') {
               return true;
             } else {
               return false;
             }
           },
-          clickFn: (treeNode) => {
+          clickFn: treeNode => {
             this.addChannel(treeNode?.uuid);
           }
         },
@@ -147,7 +145,7 @@ export default {
               $span[0].title = treeNode.type == 'catalog' ? this.$t('term.autoexec.citecatalognodelete') : this.$t('term.autoexec.citeservicenodelete');
             }
           },
-          clickFn: (treeNode) => {
+          clickFn: treeNode => {
             this.nodeDelete(treeNode);
           }
         }
@@ -155,7 +153,7 @@ export default {
     };
   },
   created() {
-    let {processUuid = '', uuid = ''} = this.$route.query || {};
+    let { processUuid = '', uuid = '' } = this.$route.query || {};
     this.processUuid = processUuid;
     this.uuid = uuid;
   },
@@ -175,12 +173,12 @@ export default {
           } else if (this.uuid) {
             this.currentUuid = this.uuid;
             this.treeUuid = this.uuid;
-            this.catalogTypeName = 'channel';//服务
+            this.catalogTypeName = 'channel'; //服务
             this.firstTreeUuid = this.uuid;
           } else if (this.processUuid) {
             this.treeUuid = !this.$utils.isEmpty(this.nodeList) ? this.nodeList[0]?.uuid : null;
             this.firstTreeUuid = this.treeUuid;
-            this.catalogTypeName = 'channel';//服务
+            this.catalogTypeName = 'channel'; //服务
           } else if (!this.$utils.isEmpty(this.nodeList)) {
             this.currentUuid = this.nodeList[0]?.uuid || null;
             this.treeUuid = this.nodeList[0]?.uuid || null;
@@ -214,9 +212,9 @@ export default {
           this.addRoot();
         } else {
           if (this.processUuid) {
-            this.addChannel(node.uuid);// 新加服务
+            this.addChannel(node.uuid); // 新加服务
           } else if (this.uuid) {
-            this.catalogName = this.$t('dialog.title.edittarget', { target: this.$t('term.process.catalog')});
+            this.catalogName = this.$t('dialog.title.edittarget', { target: this.$t('term.process.catalog') });
             this.channelData.parentUuid = node.parentUuid; // 编辑服务
             this.channelData.uuid = node.uuid;
           }
@@ -225,7 +223,7 @@ export default {
       }
       this.catalogTypeName = node?.type;
       if (this.catalogTypeName) {
-        let {uuid = '', parentUuid = null, childrenCount = null, type = ''} = node || {};
+        let { uuid = '', parentUuid = null, childrenCount = null, type = '' } = node || {};
         this.childrenCount = childrenCount;
         this.currentUuid = uuid;
         this.treeUuid = uuid;
@@ -236,7 +234,7 @@ export default {
           this.$set(this.catalogData, 'parentUuid', parentUuid);
         } else if (type == 'channel') {
           // 编辑服务
-          this.catalogName = this.$t('dialog.title.edittarget', { target: this.$t('term.process.catalog')});
+          this.catalogName = this.$t('dialog.title.edittarget', { target: this.$t('term.process.catalog') });
           this.$set(this.channelData, 'uuid', uuid);
           this.$set(this.channelData, 'parentUuid', parentUuid);
         }
@@ -269,7 +267,7 @@ export default {
         this.$set(this.catalogData, 'uuid', uuid);
       } else if (type == 'channel') {
         // 编辑服务
-        this.catalogName = this.$t('dialog.title.edittarget', { target: this.$t('term.process.catalog')});
+        this.catalogName = this.$t('dialog.title.edittarget', { target: this.$t('term.process.catalog') });
         this.catalogTypeName = type;
         this.$set(this.channelData, 'uuid', uuid);
       }
@@ -298,12 +296,7 @@ export default {
       const isTargetNodeService = targetNode && targetNode.type === 'channel';
       const isFirstTreeNodeService = firstTreeNode && firstTreeNode.type === 'channel';
       const isTargetNodeCatalog = targetNode && targetNode.type === 'catalog';
-      if (
-        (targetNode == null && isFirstTreeNodeService) ||
-        (isTargetNodeService && isFirstTreeNodeService && moveType === 'inner') ||
-        (isTargetNodeCatalog && isFirstTreeNodeService && moveType === 'prev') ||
-        (isTargetNodeCatalog && isFirstTreeNodeService && moveType === 'next')
-      ) {
+      if ((targetNode == null && isFirstTreeNodeService) || (isTargetNodeService && isFirstTreeNodeService && moveType === 'inner') || (isTargetNodeCatalog && isFirstTreeNodeService && moveType === 'prev') || (isTargetNodeCatalog && isFirstTreeNodeService && moveType === 'next')) {
         // 不能将服务拖拽成为根节点, 不能将服务拖拽到服务，不能将服务拖拽到目录节点前面，不能将服务拖拽到目录节点后面
         return false;
       }
@@ -315,7 +308,7 @@ export default {
       if (moveType === 'inner') {
         parentId = targetNode?.[keyId] || 0;
       } else {
-        parentId = targetNode && targetNode.getParentNode() === null ? 0 : (targetNode?.getParentNode()?.[keyId] || 0);
+        parentId = targetNode && targetNode.getParentNode() === null ? 0 : targetNode?.getParentNode()?.[keyId] || 0;
       }
       let data = {
         uuid: treeNode.uuid,
@@ -348,10 +341,10 @@ export default {
         return false;
       }
       let deleteContentName = this.catalogTypeName == 'catalog' ? this.catalogData.name : this.channelData.name;
-      let apiFunc = this.catalogTypeName == 'catalog' ? this.$api.process.service.deleteCatalog({ uuid: this.catalogData.uuid}) : this.$api.process.service.deleteChannel({ uuid: this.channelData.uuid});
+      let apiFunc = this.catalogTypeName == 'catalog' ? this.$api.process.service.deleteCatalog({ uuid: this.catalogData.uuid }) : this.$api.process.service.deleteChannel({ uuid: this.channelData.uuid });
       this.$createDialog({
         title: this.$t('dialog.title.deleteconfirm'),
-        content: this.$t('dialog.content.deleteconfirm', {target: deleteContentName}),
+        content: this.$t('dialog.content.deleteconfirm', { target: deleteContentName }),
         btnType: 'error',
         'on-ok': vnode => {
           apiFunc
@@ -370,24 +363,23 @@ export default {
     },
     //树节点删除
     nodeDelete(treeNode) {
-      let {uuid = null, name = '', type = '', childrenCount = 0} = treeNode || {};
+      let { uuid = null, name = '', type = '', childrenCount = 0 } = treeNode || {};
       if (childrenCount > 0 || !type) {
         return false;
       }
-      let apiFunc = type == 'catalog' ? this.$api.process.service.deleteCatalog({uuid: uuid}) : this.$api.process.service.deleteChannel({uuid: uuid});
+      let apiFunc = type == 'catalog' ? this.$api.process.service.deleteCatalog({ uuid: uuid }) : this.$api.process.service.deleteChannel({ uuid: uuid });
       this.$createDialog({
         title: this.$t('dialog.title.deleteconfirm'),
-        content: this.$t('dialog.content.deleteconfirm', {target: name}),
+        content: this.$t('dialog.content.deleteconfirm', { target: name }),
         btnType: 'error',
         'on-ok': vnode => {
-          apiFunc
-            .then(res => {
-              if (res.Status == 'OK') {
-                this.$Message.success(this.$t('message.deletesuccess'));
-                vnode.isShow = false;
-                this.getTreeList(true);
-              }
-            });
+          apiFunc.then(res => {
+            if (res.Status == 'OK') {
+              this.$Message.success(this.$t('message.deletesuccess'));
+              vnode.isShow = false;
+              this.getTreeList(true);
+            }
+          });
         }
       });
     },
@@ -435,7 +427,7 @@ export default {
   },
   computed: {
     handleClassName() {
-      return !(this.childrenCount == undefined || this.childrenCount == 0) || this.disabledConfig.saving ? 'disable' : '';
+      return !!(!(this.childrenCount == undefined || this.childrenCount == 0) || this.disabledConfig.saving);
     }
   },
   watch: {}
@@ -443,7 +435,7 @@ export default {
 </script>
 <style lang="less" scoped>
 .service-management {
-  /deep/.tscontain-body{
+  /deep/.tscontain-body {
     padding-left: 0px !important;
   }
   /deep/ .ivu-layout-content {
