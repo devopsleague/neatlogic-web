@@ -7,7 +7,6 @@
       <div v-if="selectedIndexList && selectedIndexList.length > 0 && !$utils.isEmpty(tableData.tbodyList)" class="action-item">
         <Button @click="removeSelectedItem">{{ $t('dialog.title.deletetarget',{'target':$t('page.data')}) }}</Button>
       </div>
-
       <span v-if="isShowExportExcelTemplate" class="action-item tsfont-export" @click="exportExcelTemplate">{{ $t('term.pbc.exporttemplate') }}</span>
       <span v-else class="action-item">
         <Icon
@@ -466,22 +465,26 @@ export default {
         };
       });
       let tbodyList = this.$utils.deepClone(this.tableData.tbodyList);
+      if (this.selectedIndexList.length > 0) { // 选中行导出
+        tbodyList = tbodyList.filter((v, index) => this.selectedIndexList.includes(index));
+      }
       tbodyList.forEach((item) => {
         // 添加数据
         if (item) {
           for (let key in item) {
             if (key != 'uuid' && key != '_selected') {
               let selectedItem = this.extraList.find((extraItem) => extraItem.uuid == key);
-              let {config = {}, handler = ''} = selectedItem || {};
-              let {dataSource = '', isMultiple = false} = config;
+              let {handler = ''} = selectedItem || {};
               if (handler == 'formtable') {
                 this.$set(item, [key], null);
-              } else if (dataSource == 'matrix' && (isMultiple || handler == 'formradio' || handler == 'formcheckbox' || handler == 'formselect')) {
-                // 矩阵数据源并且是多选
+              } else if ((handler == 'formradio' || handler == 'formcheckbox' || handler == 'formselect')) {
                 this.$set(item, [key], this.handleSpecialValue(item[key]));
-              } else if (dataSource == 'static' && (isMultiple || handler == 'formcheckbox')) {
-                // 静态数据源并且是多选
-                this.$set(item, [key], item[key]?.join(','));
+              } else if (handler == 'formupload') {
+                if (item[key] && item[key].length > 0) {
+                  this.$set(item, [key], item[key].map((v) => v.name).join(';'));
+                } else {
+                  this.$set(item, [key], '');
+                }
               }
             }
           }
