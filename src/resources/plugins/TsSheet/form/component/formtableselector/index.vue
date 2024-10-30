@@ -2,10 +2,10 @@
   <div>
     <div v-if="config.mode === 'dialog'">
       <div v-if="!readonly && !disabled" class="mb-sm action-group">
-        <div class="action-item">
+        <div v-if="!config.disableAddData" class="action-item">
           <Button @click="showTableSelectorDialog">{{ $t('dialog.title.addtarget',{'target':$t('page.data')}) }}</Button>
         </div>
-        <div v-if="selectedItemList && selectedItemList.length > 0" class="action-item">
+        <div v-if="!config.disableDeleteData && selectedItemList && selectedItemList.length > 0" class="action-item">
           <Button @click="removeSelectedItem">{{ $t('dialog.title.deletetarget',{'target':$t('page.data')}) }}</Button>
         </div>
       </div>
@@ -48,7 +48,7 @@
           </template>
           <template v-slot:action="{ row }">
             <div class="tstable-action">
-              <ul v-if="!readonly && !disabled" class="tstable-action-ul">
+              <ul v-if="!config.disableDeleteData && !readonly && !disabled" class="tstable-action-ul">
                 <li
                   class="tsfont-trash-o"
                   @click="deleteItem(row)"
@@ -310,7 +310,7 @@ export default {
   computed: {
     theadList() {
       const theadList = [];
-      if (!this.disabled && !this.readonly) {
+      if (!this.config.disableDeleteData && !this.disabled && !this.readonly) {
         theadList.push({ key: 'selection' });
       }
       if (this?.config?.dataConfig && this.config.dataConfig.length > 0) {

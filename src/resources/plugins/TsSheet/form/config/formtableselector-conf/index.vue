@@ -1,5 +1,27 @@
 <template>
   <div>
+    <TsFormItem :label="$t('page.disabledd')" labelPosition="left" contentAlign="right">
+      <TsFormSwitch
+        :value="config.disableAddData"
+        :trueValue="true"
+        :falseValue="false"
+        :disabled="disabled"
+        @on-change="(val)=>{
+          $set(config, 'disableAddData', val);
+        }"
+      ></TsFormSwitch>
+    </TsFormItem>
+    <TsFormItem :label="$t('page.disabledelete')" labelPosition="left" contentAlign="right">
+      <TsFormSwitch
+        :value="config.disableDeleteData"
+        :trueValue="true"
+        :falseValue="false"
+        :disabled="disabled"
+        @on-change="(val)=>{
+          $set(config, 'disableDeleteData', val);
+        }"
+      ></TsFormSwitch>
+    </TsFormItem>
     <TsFormItem :label="$t('term.framework.selectmode')" labelPosition="left" contentAlign="right">
       <TsFormRadio v-model="config.mode" :dataList="modeList" :disabled="disabled"></TsFormRadio>
     </TsFormItem>
@@ -155,6 +177,7 @@ export default {
     TsFormRadio: () => import('@/resources/plugins/TsForm/TsFormRadio'),
     TsFormSelect: () => import('@/resources/plugins/TsForm/TsFormSelect'),
     TsFormInput: () => import('@/resources/plugins/TsForm/TsFormInput'),
+    TsFormSwitch: () => import('@/resources/plugins/TsForm/TsFormSwitch'),
     AttrConfigDialog: () => import('./formtableselector-attr-config-dialog.vue'),
     DataSourceFilter: () => import('../common/data-source-filter.vue')
   },

@@ -1023,5 +1023,7 @@
   "licenseexception": "许可异常",
   "license": "许可",
   "favicon": "网站图标",
-  "autoexeccomboprunnergrouptagtips": "执行器组需满足当前标签"
+  "autoexeccomboprunnergrouptagtips": "执行器组需满足当前标签",
+  "disabledd": "禁止添加",
+  "disabledelete": "禁止删除"
 }
