@@ -304,7 +304,7 @@ export default {
                 //this.$forceUpdate();
               });
             },
-            { immediate: false }
+            { immediate: true } //组件设置默认值时，联动需要立即执行一次
           );
         }
       }
