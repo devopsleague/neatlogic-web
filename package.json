@@ -41,7 +41,7 @@
     "@fullcalendar/vue": "^6.1.11",
     "@hpcc-js/wasm": "2.16.0",
     "antlr4": "^4.13.0",
-    "axios": "^1.6.8",
+    "axios": "^0.28.1",
     "codemirror": "^5.65.16",
     "core-js": "^3.8.3",
     "cross-env": "^6.0.3",
