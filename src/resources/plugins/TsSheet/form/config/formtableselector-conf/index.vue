@@ -1,6 +1,6 @@
 <template>
   <div>
-    <TsFormItem label="禁止添加" labelPosition="left" contentAlign="right">
+    <TsFormItem :label="$t('page.disabledd')" labelPosition="left" contentAlign="right">
       <TsFormSwitch
         :value="config.disableAddData"
         :trueValue="true"
@@ -11,7 +11,7 @@
         }"
       ></TsFormSwitch>
     </TsFormItem>
-    <TsFormItem label="禁止删除" labelPosition="left" contentAlign="right">
+    <TsFormItem :label="$t('page.disabledelete')" labelPosition="left" contentAlign="right">
       <TsFormSwitch
         :value="config.disableDeleteData"
         :trueValue="true"
