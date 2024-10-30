@@ -275,9 +275,22 @@ export default {
           }
           //补充矩阵新增的数据
           dataList.forEach(item => {
-            if (!this.config.dataConfig.find(d => d.key === item.uniqueIdentifier)) {
+            let findItem = this.config.dataConfig.find(d => d.key === item.uniqueIdentifier);
+            if (!findItem) {
               //矩阵的数据默认都是用formtext作为输入组件
               this.config.dataConfig.push({ uuid: this.$utils.setUuid(), matrixAttrUuid: item.uuid, key: item.uniqueIdentifier, label: item.name, isPC: true, isMobile: false, isSearch: false, isSearchable: item.isSearchable, handler: 'formtext', hasValue: true });
+            } else {
+              //唯一标识相同时，更新矩阵的属性数据
+              const attrMapping = {
+                label: 'name',
+                isSearch: 'isSearch', 
+                isSearchable: 'isSearchable'
+              };
+              Object.keys(findItem).forEach(key => {
+                if (item.hasOwnProperty(attrMapping[key]) && !this.$utils.isSame(findItem[key], item[attrMapping[key]])) {
+                  this.$set(findItem, key, item[attrMapping[key]]);
+                }
+              });
             }
           });
         }).catch(err => {
