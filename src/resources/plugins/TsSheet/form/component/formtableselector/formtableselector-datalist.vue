@@ -206,6 +206,14 @@ export default {
                   }
                 }
               }
+              //disableDeleteData 已选择的数据禁止删除
+              if (d['_selected'] && this.config.disableDeleteData) {
+                d['isDisabled'] = true;
+              }
+              //disableAddData 未选的数据禁止选择
+              if (!d['_selected'] && this.config.disableAddData) {
+                d['isDisabled'] = true;
+              }
             });
             this.matrixData.tbodyList = tbodyList;
           }

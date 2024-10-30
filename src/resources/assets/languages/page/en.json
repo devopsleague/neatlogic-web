@@ -1021,5 +1021,7 @@
   "licenseexception": "License exception",
   "license": "permit",
   "favicon": "Website icon",
-  "autoexeccomboprunnergrouptagtips": "The actuator group needs to meet the current label requirements"
+  "autoexeccomboprunnergrouptagtips": "The actuator group needs to meet the current label requirements",
+  "disabledd": "Prohibit adding",
+  "disabledelete": "Prohibit deletion"
 }
