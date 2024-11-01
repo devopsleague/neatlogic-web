@@ -55,7 +55,7 @@ export default {
           multiple: true,
           transfer: true,
           params: {...this.params, isHasEnv: 0},
-          url: 'api/rest/deploy/app/config/env/list'
+          dynamicUrl: 'api/rest/deploy/app/config/env/list'
         }
       }
     };
