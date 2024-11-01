@@ -569,7 +569,7 @@ export default {
     theadPopTipBtnList: { //table 右上角表头排序显示自定义按钮
       type: Array
     },
-    defaultShowSize: {// 小于10条数据，不显示分页
+    defaultShowSize: {// 控制是否显示分页，默认总条数小于10条数据不显示
       type: Number,
       default: 10
     }
@@ -688,7 +688,7 @@ export default {
       this.$emit('headerTitleOperation');
     },
     getPage(page) {
-      // this.current = page;
+      this.current = page;
       this.$emit('changeCurrent', this.current);
     },
     getCarouselPage(type) {
