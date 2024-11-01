@@ -568,6 +568,10 @@ export default {
     },
     theadPopTipBtnList: { //table 右上角表头排序显示自定义按钮
       type: Array
+    },
+    defaultShowSize: {// 小于10条数据，不显示分页
+      type: Number,
+      default: 10
     }
   },
   data() {
@@ -601,8 +605,7 @@ export default {
       bigDataPageSize: _this.pageSize, //分页
       isRendered: true, //表格渲染需要时间导致第一次取值有问题，这里标记是否需要从新计算offsetWidth的值
       resizeEvent: null,
-      visible: false, //控制表头排序是否显示的poptip是否显示
-      defaultShowSize: 10 //小于10条数据，不显示分页
+      visible: false //控制表头排序是否显示的poptip是否显示
     };
   },
   beforeCreate() {},
@@ -685,7 +688,7 @@ export default {
       this.$emit('headerTitleOperation');
     },
     getPage(page) {
-      this.current = page;
+      // this.current = page;
       this.$emit('changeCurrent', this.current);
     },
     getCarouselPage(type) {
