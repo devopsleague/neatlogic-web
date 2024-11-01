@@ -13,7 +13,7 @@
   >
     <template v-for="(bitem, bindex) in list">
       <tr
-        :key="bindex"
+        :key="bitem.uuid || bindex"
         :class="setRowClass(bitem, selectList, bindex)"
         :style="setTr()"
         @click="clickTr(bitem, bindex, $event)"
