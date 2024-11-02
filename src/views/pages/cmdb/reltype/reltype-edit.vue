@@ -22,8 +22,7 @@ export default {
     TsForm: () => import('@/resources/plugins/TsForm/TsForm')
   },
   props: {
-    id: { type: Number },
-    isShow: { type: Boolean, default: false }
+    id: { type: Number }
   },
   data() {
     const _this = this;
