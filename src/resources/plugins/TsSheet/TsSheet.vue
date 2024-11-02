@@ -387,14 +387,14 @@
       <!-- 底部添加的隐藏组件 -->
       <div class="form-footer mt-nm">
         <span v-for="(item, index) in hideComponentList" :key="index">
-          <Tag 
+          <Tag
             v-if="mode === 'edit'"
-            :color="currentHideItem && currentHideItem.uuid === item.uuid ?'primary' :'default'"
+            :color="currentHideItem && currentHideItem.uuid === item.uuid ? 'primary' : 'default'"
             :closable="!disabledHideComponent"
-            :class="disabledHideComponent?'text-disabled':'cursor-pointer'"
+            :class="disabledHideComponent ? 'text-disabled' : 'cursor-pointer'"
             @on-close="removeHideItem(item, index)"
           >
-            <span :class="[item.icon, hideComponentError[item.uuid]? 'text-error':'']" @click="selectHideItem(item)">{{ item.label }}</span>
+            <span :class="[item.icon, hideComponentError[item.uuid] ? 'text-error' : '']" @click="selectHideItem(item)">{{ item.label }}</span>
           </Tag>
           <FormItem
             v-show="false"
@@ -466,19 +466,23 @@ export default {
       default: false
     },
     formSceneUuid: [String, Number], //表单场景uuid（工单详情页，必须给默认值，展示对应场景）
-    isEnableDefaultValue: { //默认启用组件赋值(应用在工单详情页，用户无流转权限，设为false)
+    isEnableDefaultValue: {
+      //默认启用组件赋值(应用在工单详情页，用户无流转权限，设为false)
       type: Boolean,
       default: true
     },
-    isNeedValid: { //是否需要校验
+    isNeedValid: {
+      //是否需要校验
       type: Boolean,
       default: true
     },
-    isClearSpecifiedAttr: {//工单权限用户编辑表单时，需要清除表单设置的只读，禁用，隐藏等规则属性
+    isClearSpecifiedAttr: {
+      //工单权限用户编辑表单时，需要清除表单设置的只读，禁用，隐藏等规则属性
       type: Boolean,
       default: false
     },
-    disabledHideComponent: { //是否禁用隐藏组件
+    disabledHideComponent: {
+      //是否禁用隐藏组件
       type: Boolean,
       default: false
     },
@@ -488,7 +492,6 @@ export default {
       default: () => {}
     },
     rowUuid: String //表单子组件行uuid
-
   },
   data() {
     return {
@@ -833,7 +836,8 @@ export default {
       if (this.dropCell) {
         const item = JSON.parse(event.dataTransfer.getData('item'));
         //隐藏组件拖动
-        if (item.isHideComponent) { //拖动到底部，不显示在表单
+        if (item.isHideComponent) {
+          //拖动到底部，不显示在表单
           const hideItem = {
             ...item,
             uuid: this.$utils.setUuid(),
@@ -1866,15 +1870,14 @@ export default {
             console.error(e);
           }
         });
-      } 
+      }
       return list;
     },
     setFormSceneConfig(formSceneUuid, formConfig) {
       let data = this.$utils.deepClone(formConfig); //主表单
       let formItemList = [];
       if (formSceneUuid != formConfig.uuid && !this.$utils.isEmpty(formConfig.sceneList)) {
-        let sceneConfig = formConfig.sceneList.find(item => item.uuid === formSceneUuid) ||
-                      formConfig.sceneList.find(item => item.uuid === formConfig.defaultSceneUuid);
+        let sceneConfig = formConfig.sceneList.find(item => item.uuid === formSceneUuid) || formConfig.sceneList.find(item => item.uuid === formConfig.defaultSceneUuid);
         if (sceneConfig) {
           //场景表单，继承组件替换
           if (formConfig.tableList) {
@@ -1913,7 +1916,7 @@ export default {
       this.clearSelectedComponent();
       this.unselectCell();
       this.currentHideItem = item;
-      this.$emit('selectCell', {component: item});
+      this.$emit('selectCell', { component: item });
     },
     removeHideItem(item, index) {
       if (this.currentHideItem && this.currentHideItem.uuid === item.uuid) {
@@ -1934,7 +1937,8 @@ export default {
         }
       }
     },
-    updateTableAttrUuids(list) { //表格组件更新属性uuid
+    updateTableAttrUuids(list) {
+      //表格组件更新属性uuid
       list.forEach(attr => {
         this.$set(attr, 'uuid', this.$utils.setUuid());
         if (attr.handler === 'formtable') {
@@ -1944,7 +1948,8 @@ export default {
         }
       });
     },
-    updateLayoutAttrUuids(item) { //布局组件内部表格更新属性uuid
+    updateLayoutAttrUuids(item) {
+      //布局组件内部表格更新属性uuid
       let mapUuid = {};
       item.component.component.forEach(attr => {
         const uuid = this.$utils.setUuid();
@@ -1966,17 +1971,17 @@ export default {
         });
       }
     },
-    updateSubFormAttrUuids(formConfig) { //子表单更新属性uuid
+    updateSubFormAttrUuids(formConfig) {
+      //子表单更新属性uuid
       if (formConfig.tableList) {
         formConfig.tableList.forEach(cell => {
           if (cell.component && cell.component.hasOwnProperty('uuid')) {
             this.$set(cell.component, 'uuid', this.$utils.setUuid());
-            this.updateCellAttrUuid(cell); 
+            this.updateCellAttrUuid(cell);
           }
         });
       }
     }
-
   },
   filter: {},
   computed: {
@@ -2352,7 +2357,10 @@ export default {
             }
           });
         } else if (val && val instanceof Object) {
-          this.formData = this.$utils.deepClone(val);
+          //这里一定要检查formData和data是否一样，如果一样的情况下还继续复制对象，在@setValue中设置TsSheet的data对象的情况下，会导致死循环。
+          if (!this.$utils.isSame(this.formData, val)) {
+            this.formData = this.$utils.deepClone(val);
+          }
         }
         this.isReady = true;
       },
@@ -2361,7 +2369,9 @@ export default {
     },
     formData: {
       handler: function(newVal, oldVal) {
-        this.$emit('setValue', this.$utils.deepClone(newVal));
+        //在对data的监听中已经复制了一遍，不需要再重新复制。
+        //this.$emit('setValue', this.$utils.deepClone(newVal));
+        this.$emit('setValue', newVal);
       },
       deep: true
     },
