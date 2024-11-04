@@ -15,6 +15,14 @@
             ></TsFormSwitch>
           </template>
           <template v-if="['formtext', 'formtextarea'].includes(propertyLocal.handler)" v-slot:config>
+            <TsFormItem v-if="propertyLocal.handler=== 'formtext'" :label="$t('form.placeholder.checkrule')">
+              <TsFormSelect
+                v-model="propertyLocal.config.validate"
+                :dataList="ruleList"
+                transfer
+                border="border"
+              ></TsFormSelect>
+            </TsFormItem>
             <TsFormItem :label="$t('page.inputtip')">
               <TsFormInput v-model="propertyLocal.config.placeholder" :maxlength="50"></TsFormInput>
             </TsFormItem>
@@ -445,7 +453,49 @@ export default {
           type: 'slot'
         }
       ],
-      isActive: false
+      isActive: false,
+      ruleList: [
+        {
+          text: this.$t('page.letter'),
+          value: 'unique_ident'
+        },
+        {
+          text: this.$t('page.lowercaseletter'),
+          value: 'lowercase'
+        },
+        {
+          text: this.$t('page.capitalletter'),
+          value: 'uppercase'
+        },
+        {
+          text: this.$t('page.number'),
+          value: 'number'
+        },
+        {
+          text: this.$t('page.lettersandnumbers'),
+          value: 'enchar'
+        },
+        {
+          text: this.$t('page.emailaddress'),
+          value: 'mail'
+        },
+        {
+          text: this.$t('page.phonenumber'),
+          value: 'phone'
+        },
+        {
+          text: this.$t('page.ip'),
+          value: 'ip'
+        },
+        {
+          text: this.$t('page.port'),
+          value: 'port'
+        },
+        {
+          text: 'URL',
+          value: 'url'
+        }
+      ]
     };
   },
   beforeCreate() {},
