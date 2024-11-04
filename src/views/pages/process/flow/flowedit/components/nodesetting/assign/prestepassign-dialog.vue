@@ -11,8 +11,8 @@
         <div>
           <Alert>
             <ul class="pl-sm">
-              <li style="list-style:outside;">当条件路径非空：工单流转至前置步骤且处理人选择路径后点击流转时，需额外满足“用户流转的路径”和“条件路径”相同时才弹框指派当前步骤处理人。</li>
-              <li style="list-style:outside;">当条件路径为空：工单流转至前置步骤且处理人点击流转时，直接弹框指派当前步骤处理人。</li>
+              <li style="list-style:outside;">当条件路径非空：当前置步骤处理人选择的流转路径和条件路径一致时，才需要为当前步骤指派处理人</li>
+              <li style="list-style:outside;">当条件路径为空：前置步骤处理人必须为当前步骤指派处理人</li>
               <!-- <li style="list-style:outside;">详情请查阅在线文档</li> -->
             </ul>
           </Alert>

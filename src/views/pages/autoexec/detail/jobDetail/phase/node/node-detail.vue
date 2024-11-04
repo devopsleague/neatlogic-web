@@ -125,7 +125,7 @@
                     </div>
                   </div>
                 </template>
-                 <template v-else-if="step && step.loopItems">
+                <template v-else-if="step && step.loopItems">
                   <!-- LOOP-Block -->
                   <div
                     class="padding"
