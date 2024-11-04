@@ -96,11 +96,16 @@ export default {
     },
     async validDataBase(validConifg) {
       const errorList = [];
+      let isValid = true;
       //组件默认ref是formitem
       if (this.$refs['formitem'] && this.$refs['formitem'].valid) {
-        this.$refs['formitem'].valid();
+        isValid = this.$refs['formitem'].valid();
       }
-      errorList.push(...this.validDataForAllItem());
+      if (!isValid) {
+        errorList.push({ uuid: this.formItem.uuid, error: this.formItem.label + '：' + this.$t('form.validate.validatefailed') });
+      } else {
+        errorList.push(...this.validDataForAllItem());
+      }
       if (this.validData && typeof this.validData === 'function') {
         const subErrorList = await this.validData(validConifg);
         if (subErrorList && subErrorList.length > 0) {
