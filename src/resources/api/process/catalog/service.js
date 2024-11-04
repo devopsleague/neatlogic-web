@@ -13,6 +13,9 @@ const service = {
   searchService(params) {
     return axios.post('/api/rest/process/channel/search', params);
   },
+  searchChannelForSelect(params) {
+    return axios.post('/api/rest/process/channel/search/forselect', params);
+  },
   //服务通收藏控制
   changeLike(data) {
     return axios.post('/api/rest/process/channel/user/save', data);
