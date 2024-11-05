@@ -103,7 +103,7 @@
         </div>
       </div>
     </div>
-    <TsFormItem :label="$t('term.cmdb.uniquerule')" tooltip="根据属性设置，筛选出所有标记为'是否唯一'的属性，根据选择的属性作为表格行的唯一性校验。" labelPosition="top">
+    <TsFormItem :label="$t('term.cmdb.uniquerule')" tooltip="根据属性设置，筛选出所有标记为'是否唯一'的属性，若选择下列属性配置多个字段的组合唯一性，则通过这些字段的组合来确保数据的唯一性；若未选择下列属性，则会单独对下列每个字段进行唯一性校验。" labelPosition="top">
       <TsFormCheckbox
         :value="config.uniqueRuleConfig"
         :dataList="handleUniqueRuleConfigDataList"

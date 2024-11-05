@@ -126,6 +126,17 @@
         </div>
       </div>
     </TsFormItem>
+    <TsFormItem :label="$t('term.cmdb.uniquerule')" tooltip="根据属性设置，筛选出所有标记为'是否唯一'的属性，若选择下列属性配置多个字段的组合唯一性，则通过这些字段的组合来确保数据的唯一性；若未选择下列属性，则会单独对下列每个字段进行唯一性校验。" labelPosition="top">
+      <TsFormCheckbox
+        :value="config.uniqueRuleConfig"
+        :dataList="handleUniqueRuleConfigDataList"
+        class="checkbox-unique-rule-box"
+        :disabled="disabled"
+        @on-change="val => {
+          setConfig('uniqueRuleConfig', val);
+        }"
+      ></TsFormCheckbox>
+    </TsFormItem>
     <!-- <TsFormItem label="分页" labelPosition="left" contentAlign="right">
       <TsFormSwitch v-model="config.needPage" :trueValue="true" :falseValue="false"></TsFormSwitch>
     </TsFormItem>-->
@@ -175,6 +186,7 @@ export default {
     TsFormSelect: () => import('@/resources/plugins/TsForm/TsFormSelect'),
     TsFormInput: () => import('@/resources/plugins/TsForm/TsFormInput'),
     TsFormSwitch: () => import('@/resources/plugins/TsForm/TsFormSwitch'),
+    TsFormCheckbox: () => import('@/resources/plugins/TsForm/TsFormCheckbox'),
     AttrConfigDialog: () => import('./formtableselector-attr-config-dialog.vue'),
     DataSourceFilter: () => import('../common/data-source-filter.vue')
   },
@@ -339,6 +351,17 @@ export default {
   },
   filter: {},
   computed: {
+    handleUniqueRuleConfigDataList() {
+      let dataList = [];
+      let {dataConfig = [] } = this.config;
+      dataConfig.forEach(item => {
+        let {isUnique = false} = item.config || {};
+        if (isUnique) {
+          dataList.push({ text: item.label, value: item.uuid });
+        }
+      });
+      return dataList.length > 0 ? dataList : [];
+    }
   },
   watch: {
     'config.matrixUuid': {
