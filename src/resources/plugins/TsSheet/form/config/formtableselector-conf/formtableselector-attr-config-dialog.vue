@@ -50,7 +50,12 @@
                   transfer
                   border="border"
                 ></TsFormSelect>
-                <TsFormInput v-else-if="propertyLocal.config.defaultValueType === 'custom'" v-model="propertyLocal.config.defaultValue" :type="propertyLocal.handler.replace('form', '')"></TsFormInput>
+                <TsFormInput
+                  v-else-if="propertyLocal.config.defaultValueType === 'custom'"
+                  v-model="propertyLocal.config.defaultValue"
+                  :validateList="propertyLocal.config.validate?[propertyLocal.config.validate]:[]"
+                  :type="propertyLocal.handler.replace('form', '')"
+                ></TsFormInput>
               </div>
             </TsFormItem>
           </template>
