@@ -91,7 +91,7 @@
                 </td>
                 <td v-if="!disabled">
                   <span v-if="data.isExtra" class="tsfont-setting text-action" @click="openAttrConfigDialog(data)"></span>
-                  <span v-if="source !== 'scene' && data.isExtra" class="ml-xs tsfont-plus-o text-action" @click="addExtraProperty()"></span>
+                  <span v-if="source !== 'scene' && data.isExtra" class="ml-xs tsfont-plus-o text-action" @click="addExtraProperty(index)"></span>
                   <span v-if="data.isExtra" class="ml-xs tsfont-close-o text-action" @click="removeExtraProperty(data)"></span>
                 </td>
               </tr>
@@ -194,11 +194,11 @@ export default {
       this.isAttrConfigDialogShow = false;
     },
     //添加扩展属性
-    addExtraProperty() {
-      const index = this.config.dataConfig.filter(d => d.isExtra).length;
-      this.config.dataConfig.push({
+    addExtraProperty(index) {
+      const newIndex = this.config.dataConfig.length + 1;
+      const newProperty = {
         uuid: this.$utils.setUuid(),
-        label: this.$t('term.framework.extraattr') + '_' + (index + 1),
+        label: this.$t('term.framework.extraattr') + '_' + newIndex,
         isPC: true,
         isMobile: false,
         isSearch: false,
@@ -210,7 +210,12 @@ export default {
         config: {
           isRequired: true
         }
-      });
+      };
+      if (!this.$utils.isEmpty(index)) {
+        this.config.dataConfig.splice(index + 1, 0, newProperty);
+      } else {
+        this.config.dataConfig.push(newProperty);
+      }
     },
     updateTh() {
       let itemConfig = this.initFormItemList.find(item => item.uuid === this.formItem.uuid);

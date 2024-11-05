@@ -87,7 +87,7 @@
             >
               <tr v-for="(data, index) in config.dataConfig" :key="index" class="tstable-tr">
                 <td v-if="!disabled">
-                  <span class="tsfont-bar mr-xs" :title="$t('page.dragsort')" style="cursor:move"></span>
+                  <span class="tsfont-bar pr-xs" :title="$t('page.dragsort')" style="cursor:move"></span>
                 </td>
                 <td class="text-grey">
                   <div class="overflow" style="width: 80px" :title="data.label">
@@ -105,12 +105,8 @@
                     </Poptip>
                   </div>
                 </td>
-                <td>
-                  <Checkbox v-model="data.isPC" :disabled="disabled"></Checkbox>
-                </td>
-                <td>
-                  <Checkbox v-model="data.isMobile" :disabled="disabled"></Checkbox>
-                </td>
+                <td><Checkbox v-model="data.isPC" :disabled="disabled"></Checkbox></td>
+                <td><Checkbox v-model="data.isMobile" :disabled="disabled"></Checkbox></td>
                 <td>
                   <div v-if="data.isSearchable == 1">
                     <Checkbox v-model="data.isSearch" :disabled="disabled"></Checkbox>
@@ -118,7 +114,8 @@
                 </td>
                 <td v-if="!disabled">
                   <span class="tsfont-setting text-action" @click="openAttrConfigDialog(data)"></span>
-                  <span v-if="data.isExtra" class="ml-xs tsfont-close-o text-action" @click="removeExtraProperty(data)"></span>
+                  <span v-if="source !== 'scene' && data.isExtra" class="pl-xs tsfont-plus-o text-action" @click="addExtraProperty(index)"></span>
+                  <span v-if="data.isExtra" class="pl-xs tsfont-close-o text-action" @click="removeExtraProperty(data)"></span>
                 </td>
               </tr>
             </draggable>
@@ -252,15 +249,15 @@ export default {
       this.isAttrConfigDialogShow = false;
     },
     //添加扩展属性
-    addExtraProperty() {
+    addExtraProperty(index) {
       if (this.disabled) {
         return;
       }
-      const index = this.config.dataConfig.filter(d => d.isExtra).length;
-      this.config.dataConfig.push({
+      const newIndex = this.config.dataConfig.filter(d => d.isExtra).length + 1;
+      const newProperty = {
         uuid: this.$utils.setUuid(),
         key: '',
-        label: this.$t('term.framework.extraattr') + '_' + (index + 1),
+        label: this.$t('term.framework.extraattr') + '_' + newIndex,
         isPC: true,
         isMobile: false,
         isSearch: false,
@@ -268,7 +265,12 @@ export default {
         handler: 'formtext',
         isExtra: true,
         hasValue: true
-      });
+      };
+      if (!this.$utils.isEmpty(index)) {
+        this.config.dataConfig.splice(index + 1, 0, newProperty);
+      } else {
+        this.config.dataConfig.push(newProperty);
+      }
     },
     changeMatrix(matrixUuid) {
       if (matrixUuid) {
@@ -379,6 +381,9 @@ export default {
 };
 </script>
 <style lang="less" scoped>
+/deep/ .ivu-checkbox-wrapper {
+  margin-right: 0;
+}
 .matrix-btn {
   position: absolute;
   right: 0;
