@@ -3,6 +3,7 @@
     <Loading :loadingShow="loadingShow" type="fix"></Loading>
     <!-- 表单标签 -->
     <FormTagSetting
+      v-if="!loadingShow"
       :formUuid="formUuid"
       :defaultFormTag="createjobConfig.formTag"
       labelPosition="left"

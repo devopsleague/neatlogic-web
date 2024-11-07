@@ -44,6 +44,7 @@ export default {
   },
   beforeCreate() {},
   created() {
+    this.formTag = this.$utils.deepClone(this.defaultFormTag);
     this.getFormTagList();
   },
   beforeMount() {},
