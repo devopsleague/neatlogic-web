@@ -11,7 +11,7 @@
       <div slot="content">{{ passworkValue }}</div>
     </Poptip>
     <div v-if="readonly">
-      <span>{{ actualValue || '-' }}</span>
+      <span>{{ actualValue && reg.test(actualValue)? '******' : actualValue ? actualValue : '-' }}</span>
       <span v-if="actualValue && isCanView" class="pl-xs tsfont-eye" @click.stop="viewPasswork()"></span>
     </div>
     <TsFormInput
@@ -60,7 +60,8 @@ export default {
       isShowPoptip: false, //明文显示密码提示框
       isShowPasssork: false,
       passworkValue: '', //明文密码
-      initValue: this.$utils.deepClone(this.value) //初始值
+      initValue: this.$utils.deepClone(this.value), //初始值
+      reg: /\{RC4\}/ //RC4加密
     };
   },
   beforeCreate() {},
@@ -83,7 +84,7 @@ export default {
       this.$nextTick(() => {
         this.isShowPasssork = !this.isShowPasssork;
         this.isShowPoptip = this.isShowPasssork;
-        if (this.$refs.formitem) {
+        if (this.$refs.formitem && this.actualValue && !this.reg.test(this.actualValue)) {
           this.$refs.formitem.handleToggleShowPassword();
         }
       });
