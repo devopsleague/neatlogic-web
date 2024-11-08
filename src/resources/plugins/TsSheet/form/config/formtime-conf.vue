@@ -46,9 +46,12 @@
                 border="bottom"
                 :disabled="disabled"
                 transfer
+                @on-change="val => {
+                  $set(valid, 'value', null);
+                }"
               ></TsFormSelect>
             </Col>
-            <Col :span="valid.filter == 'custom'?9:18">
+            <Col :span="valid.filter == 'custom'?6:18">
               <TsFormSelect
                 ref="validFilter"
                 v-model="valid.filter"
@@ -60,14 +63,14 @@
               >
               </TsFormSelect>
             </Col>
-            <Col v-if="valid.filter == 'custom'" span="9">
+            <Col v-if="valid.filter == 'custom'" span="12">
               <TsFormDatePicker
                 ref="validValue"
                 v-model="valid.value"
                 value-type="format"
                 :format="config.format"
                 :validateList="validateList"
-                type="time"
+                :type="['later', 'earlier'].includes(valid.text)?'time':'timerange'"
                 width="100%"
                 border="bottom"
                 :disabled="disabled"
@@ -132,7 +135,9 @@ export default {
       ],
       filterDataList: [
         { text: this.$t('page.later'), value: 'later' },
-        { text: this.$t('page.earlier'), value: 'earlier' }
+        { text: this.$t('page.earlier'), value: 'earlier' },
+        { text: this.$t('page.belong'), value: 'belong' },
+        { text: this.$t('page.notbelong'), value: 'notbelong' }
       ],
       validateList: ['required']
     };

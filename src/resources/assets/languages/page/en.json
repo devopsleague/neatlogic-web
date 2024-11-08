@@ -1023,5 +1023,6 @@
   "favicon": "Website icon",
   "autoexeccomboprunnergrouptagtips": "The actuator group needs to meet the current label requirements",
   "disabledd": "Prohibit adding",
-  "disabledelete": "Prohibit deletion"
+  "disabledelete": "Prohibit deletion",
+  "notbelong": "Not belonging to"
 }

@@ -33,6 +33,12 @@ export default {
   },
   data() {
     return {
+      timeMap: {
+        later: this.$t('page.later'),
+        earlier: this.$t('page.earlier'),
+        belong: this.$t('page.belong'),
+        notbelong: this.$t('page.notbelong')
+      }
     };
   },
   beforeCreate() {},
@@ -66,6 +72,17 @@ export default {
         }
       } 
       return errorList;
+    },
+    isTimeInRange(time, range) {
+      const [startTimeStr, endTimeStr] = range;
+      const today = new Date();
+      const dateStr = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
+      let startTime = new Date(dateStr + ' ' + startTimeStr).getTime();
+      let endTime = new Date(dateStr + ' ' + endTimeStr).getTime();
+      const timeToCheck = new Date(dateStr + ' ' + time).getTime();
+
+      // 比较时间戳
+      return timeToCheck >= startTime && timeToCheck <= endTime;
     }
   },
   filter: {},
@@ -94,7 +111,7 @@ export default {
             validateList.push({
               name: 'tomore',
               trigger: 'change',
-              message: this.$t('term.framework.timeneed') + (item.text == 'later' ? this.$t('page.later') : this.$t('page.earlier')) + item.value,
+              message: this.$t('term.framework.timeneed') + this.timeMap[item.text] + (Array.isArray(item.value) ? item.value[0] + '~' + item.value[1] : item.value),
               validator: (rule, value) => {
                 if (value == '') {
                   return true;
@@ -102,6 +119,12 @@ export default {
                   return value > item.value;
                 } else if (item.text == 'earlier') {
                   return value < item.value;
+                } else if (!this.$utils.isEmpty(item.value)) {
+                  if (item.text == 'belong') {
+                    return this.isTimeInRange(value, item.value);
+                  } else if (item.text == 'notbelong') {
+                    return !this.isTimeInRange(value, item.value);
+                  }
                 }
                 return true;
               }
