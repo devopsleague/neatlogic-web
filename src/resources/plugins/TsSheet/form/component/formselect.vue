@@ -56,7 +56,7 @@ export default {
   data() {
     return {
       isFirst: true,
-      initFilter: this.$utils.deepClone(this.filter),
+      initFilter: [],
       isShowRowEditDialog: false,
       matrixUuid: ''
     };
@@ -64,7 +64,13 @@ export default {
   beforeCreate() {},
   created() {},
   beforeMount() {},
-  mounted() {},
+  mounted() {
+    setTimeout(() => {
+      // 避免数据初始化时，过滤条件导致数据清空
+      this.initFilter = this.$utils.deepClone(this.filter);
+      this.isFirst = false;
+    }, 0);
+  },
   beforeUpdate() {},
   updated() {},
   activated() {},
@@ -251,7 +257,6 @@ export default {
           }
         }
         this.initFilter = this.$utils.deepClone(val);
-        this.isFirst = false;
       },
       deep: true,
       immediate: true
