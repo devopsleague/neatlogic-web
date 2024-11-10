@@ -6,6 +6,14 @@
     @on-ok="saveEdit"
   >
     <template v-slot>
+      <!-- 表单标签 -->
+      <FormTagSetting
+        labelPosition="right"
+        :formUuid="formUuid"
+        :defaultFormTag="formTag"
+        class="pb-nm"
+        @updateFormTag="changeFormTag"
+      ></FormTagSetting>
       <TsForm ref="reportForm" :item-list="reportInstanceFormConfig">
         <template v-slot:integrationConfig>
           <div>
@@ -98,7 +106,7 @@
                     v-model="paramMappingList[pindex].value"
                     search
                     transfer
-                    :dataList="paraConditionList"
+                    :dataList="processParamList"
                     textName="label"
                     valueName="name"
                     :validateList="param.isRequired==1?vaild:[]"
@@ -181,7 +189,8 @@ export default {
     TsFormSwitch: () => import('@/resources/plugins/TsForm/TsFormSwitch'),
     TsFormSelect: () => import('@/resources/plugins/TsForm/TsFormSelect'),
     TsDialog: () => import('@/resources/plugins/TsDialog/TsDialog.vue'),
-    TsFormInput: () => import('@/resources/plugins/TsForm/TsFormInput.vue')
+    TsFormInput: () => import('@/resources/plugins/TsForm/TsFormInput.vue'),
+    FormTagSetting: () => import('@/views/pages/process/flow/flowedit/components/nodesetting/form-tag-setting.vue') // 表单扩展数据标签
   },
   props: {
     isShow: {
@@ -194,6 +203,7 @@ export default {
       type: String,
       default: 'add'
     },
+    formConfig: Object,
     paraConditionList: Array,
     integrationHandler: {
       type: String,
@@ -256,7 +266,10 @@ export default {
       },
       inputParamList: [], //输入参数，用于成功参数
       outputParamList: [], //输出参数，用于成功参数
-      isSuccessactive: '0'
+      isSuccessactive: '0',
+      formUuid: _this.formConfig && _this.formConfig.uuid ? _this.formConfig.uuid : '', //表单uuid
+      formTag: '',
+      processParamList: []
     };
   },
   beforeCreate() {},
@@ -264,6 +277,7 @@ export default {
   beforeMount() {},
   mounted() {
     this.rowfn();
+    this.getProcessParamList();
   },
   beforeUpdate() {},
   updated() {},
@@ -299,6 +313,7 @@ export default {
         let actionList = {
           trigger: this.reportInstanceFormConfig.trigger.value,
           integrationUuid: this.integrationUuid,
+          formTag: this.formTag,
           paramMappingList: this.paramMappingList,
           successCondition: this.isSuccessactive == '0' ? {} : this.successCondition
         };
@@ -317,8 +332,8 @@ export default {
     getParamtype(item) {
       this.$set(item, 'type', '');
       let isExit = false;
-      if (this.paraConditionList && this.paraConditionList.length > 0) {
-        this.paraConditionList.forEach(pa => {
+      if (this.processParamList && this.processParamList.length > 0) {
+        this.processParamList.forEach(pa => {
           if (pa.name == item.value) {
             this.$set(item, 'type', pa.type);
             isExit = true;
@@ -391,6 +406,23 @@ export default {
           this.paramMappingList = allList;
         }
       }
+    },
+    changeFormTag(val) {
+      this.formTag = val;
+      this.getProcessParamList();
+    },
+    getProcessParamList() {
+      //参数条件选择
+      let data = {
+        formUuid: this.formUuid,
+        tag: this.formTag || 'common'
+      };
+      this.processParamList = [];
+      this.$api.process.process.processParamList(data).then(res => {
+        if (res.Status == 'OK') {
+          this.$set(this, 'processParamList', res.Return || []);
+        }
+      });
     }
   },
   filter: {},
@@ -433,6 +465,7 @@ export default {
           this.reportInstanceFormConfig.trigger.value = val.trigger;
           // this.$set(this, 'trigger', val.trigger);
           this.$set(this, 'integrationUuid', val.integrationUuid);
+          this.$set(this, 'formTag', val.formTag);
           this.$set(this, 'paramMappingList', val.paramMappingList);
           this.$set(this, 'successCondition', val.successCondition);
           if (val.successCondition && val.successCondition.name) {
@@ -453,6 +486,14 @@ export default {
       },
       immediate: true,
       deep: true
+    },
+    'formConfig.uuid': {
+      handler: function(val, oldval) {
+        this.formUuid = val;
+        this.getProcessParamList();
+      },
+      deep: true,
+      immediate: true
     }
   }
 };
