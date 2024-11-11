@@ -35,7 +35,7 @@
               <div v-if="action.paramMappingList && action.paramMappingList.length > 0" class="form-block">
                 <div class="block-left">{{ $t('term.autoexec.paramsvalue') }}：</div>
                 <div class="block-right text">
-                  <div v-for="(param, pindex) in action.paramMappingList" :key="pindex">{{ param.name }}<span class="text-tip"> = </span>{{ setParam(param.value) }}</div>
+                  <div v-for="(param, pindex) in action.paramMappingList" :key="pindex">{{ param.name }}<span class="text-tip"> = </span>{{ setParam(param.value, action.formTag) }}</div>
                 </div>
               </div>
               <div v-if="action.successCondition && action.successCondition.name" class="form-block">
@@ -58,7 +58,7 @@
       :editList="editList"
       :type="edittype"
       :integrationHandler="integrationHandler"
-      :paraConditionList="paraConditionList"
+      :formConfig="formConfig"
       @close="updateAction"
     ></ActionEdit>
   </div>
@@ -97,8 +97,10 @@ export default {
       editList: [], //编辑弹窗的数据
       integrationList: [], //外部数据源选中列表
       editIndex: null, //当前编辑的数据的索引值
-      paraConditionList: [], //流程条件列表
-      expressionList: [] //表达式列表
+      //paraConditionList: [], //流程条件列表
+      expressionList: [], //表达式列表
+      formUuid: '',
+      formTag2ProcessParamListMap: {}
     };
   },
   beforeCreate() {},
@@ -143,19 +145,19 @@ export default {
         this.$set(this, 'triggerList', res.Return || []);
       });
     },
-    getParaConditionList(uuid) {
-      //参数条件选择
-      let data = {};
-      if (uuid) {
-        data.formUuid = uuid;
-      }
-      this.paraConditionList = [];
-      this.$api.process.process.processParamList(data).then(res => {
-        if (res.Status == 'OK') {
-          this.$set(this, 'paraConditionList', res.Return || []);
-        }
-      });
-    },
+    // getParaConditionList(uuid) {
+    //   //参数条件选择
+    //   let data = {};
+    //   if (uuid) {
+    //     data.formUuid = uuid;
+    //   }
+    //   this.paraConditionList = [];
+    //   this.$api.process.process.processParamList(data).then(res => {
+    //     if (res.Status == 'OK') {
+    //       this.$set(this, 'paraConditionList', res.Return || []);
+    //     }
+    //   });
+    // },
     getIntegrationList(val) {
       //获取外部数据源选中的列表回显需要的列表
       this.integrationList = [];
@@ -164,6 +166,22 @@ export default {
           this.$set(this, 'integrationList', res.Return.tbodyList);
         }
       });
+    },
+    getFormTag2ProcessParamListMap(formTagList) {
+      if (formTagList && formTagList.length > 0) {
+        formTagList.forEach((formTag) => {
+          let data = {
+            formUuid: this.formUuid,
+            tag: formTag
+          };
+          this.$api.process.process.processParamList(data).then(res => {
+            if (res.Status == 'OK') {
+              let processParamList = res.Return || [];
+              this.$set(this.formTag2ProcessParamListMap, formTag, processParamList);
+            }
+          });
+        });
+      }
     },
     getExpressionlist() {
       this.$api.process.process.getExpressionlist().then(res => {
@@ -216,11 +234,12 @@ export default {
       };
     },
     setParam() {
-      return function(val) {
+      return function(val, formTag) {
         let txt = '-';
         txt = val;
-        this.paraConditionList.length > 0 &&
-          this.paraConditionList.forEach(pa => {
+        let processParamList = this.formTag2ProcessParamListMap[formTag];
+        processParamList && processParamList.length > 0 &&
+          processParamList.forEach(pa => {
             if (pa.name == val) {
               txt = pa.label;
             }
@@ -240,9 +259,11 @@ export default {
     actionsettingList: {
       handler: function(val) {
         let uuidList = [];
+        let formTagList = [];
         if (val && val.length > 0) {
           val.forEach(v => {
             uuidList.push(v.integrationUuid);
+            formTagList.push(v.formTag);
           });
         }
         if (uuidList.length > 0) {
@@ -250,13 +271,17 @@ export default {
         } else {
           this.$set(this, 'integrationList', []);
         }
+        if (formTagList.length > 0) {
+          this.getFormTag2ProcessParamListMap(formTagList);
+        }
       },
       deep: true,
       immediate: true
     },
     'formConfig.uuid': {
       handler: function(val, oldval) {
-        this.getParaConditionList(val);
+        this.formUuid = val;
+        // this.getParaConditionList(val);
       },
       deep: true,
       immediate: true
