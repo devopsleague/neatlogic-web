@@ -209,7 +209,10 @@ export default {
         disable: 0,
         setvalue: 0,
         emit: 0,
-        require: 0
+        require: 0,
+        allowAdd: 0,
+        allowEdit: 0,
+        allowDelete: 0
       }, //记录操作执行次数
       isFirstLoad: true, //是否第一次加载，用于比较表单数据新旧值时，第一次触发一次操作
       filter: [], //格式[{column:'矩阵属性uuid',expression:'equal',valueList:["value"]}]
@@ -453,6 +456,12 @@ export default {
         this.$set(this.formData, this.formItem.uuid, val);
       }
       this.$emit('change', val);
+    },
+    call(name, ...args) {
+      const formItem = this.$refs['formItem'];
+      if (formItem && formItem[name] && typeof formItem[name] === 'function') {
+        formItem[name](...args);
+      }
     },
     addExecuteCount(action) {
       if (!this.executeCount.hasOwnProperty(action)) {

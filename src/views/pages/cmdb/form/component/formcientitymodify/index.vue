@@ -10,9 +10,9 @@
           </div>
           <div style="text-align: right">
             <div class="action-group">
-              <div v-if="!readonly && !disabled" class="action-item tsfont-edit" @click="showCiDialog(ciId)">编辑数据</div>
-              <div v-if="!readonly && !disabled" class="action-item tsfont-download" @click="showTemplateDialog(ciId)">下载导入模板</div>
-              <div v-if="!readonly && !disabled" class="action-item tsfont-upload" @click="openFilePicker(ciId)">导入数据</div>
+              <div v-if="!readonly && !disabled && canEditData" class="action-item tsfont-edit" @click="showCiDialog(ciId)">编辑数据</div>
+              <div v-if="!readonly && !disabled && (config.actionEdit || config.actionAdd)" class="action-item tsfont-download" @click="showTemplateDialog(ciId)">下载导入模板</div>
+              <div v-if="!readonly && !disabled && (config.actionEdit || config.actionAdd)" class="action-item tsfont-upload" @click="openFilePicker(ciId)">导入数据</div>
             </div>
           </div>
         </div>
@@ -126,6 +126,15 @@ export default {
   beforeDestroy() {},
   destroyed() {},
   methods: {
+    setAllowAdd(bool) {
+      this.$set(this.config, 'actionAdd', !!bool);
+    },
+    setAllowEdit(bool) {
+      this.$set(this.config, 'actionEdit', !!bool);
+    },
+    setAllowDelete(bool) {
+      this.$set(this.config, 'actionDel', !!bool);
+    },
     //对外校验方法
     async validData(validConifg) {
       const errorList = await this.validateCiEntityAttr();
@@ -181,9 +190,9 @@ export default {
       if (!this.config.ciId) {
         errorList.push({ field: 'ciId', error: '请选择模型' });
       }
-      if (!this.config.actionAdd && !this.config.actionEdit && !this.config.actionDel) {
+      /*if (!this.config.actionAdd && !this.config.actionEdit && !this.config.actionDel) {
         errorList.push({ field: 'dataConfig', error: '至少要选择一个可操作的字段' });
-      }
+      }*/
       return errorList;
     },
     init() {
@@ -445,6 +454,9 @@ export default {
     actionTypeConfig() {
       let config = this.config;
       return { edit: config.actionEdit || false, del: config.actionDel || false, add: config.actionAdd || false };
+    },
+    canEditData() {
+      return this.config.actionEdit || this.config.actionDel || this.config.actionAdd;
     },
     getCiName() {
       return function(ciId) {

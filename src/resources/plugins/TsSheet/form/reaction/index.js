@@ -9,6 +9,9 @@ import { default as emit } from './emit.js';
 import { default as required } from './required.js';
 import { default as clearValue } from './clearValue.js';
 import { default as setValueOther } from './setValueOther.js';
+import { default as allowAdd } from './allowAdd.js';
+import { default as allowEdit } from './allowEdit.js';
+import { default as allowDelete } from './allowDelete.js';
 
 export const REACTION = {
   mask: mask,
@@ -21,5 +24,8 @@ export const REACTION = {
   emit: emit,
   required: required,
   clearValue: clearValue,
-  setValueOther: setValueOther
+  setValueOther: setValueOther,
+  allowAdd: allowAdd,
+  allowEdit: allowEdit,
+  allowDelete: allowDelete
 };
