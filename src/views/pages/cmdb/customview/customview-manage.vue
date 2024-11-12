@@ -44,7 +44,7 @@
                 {{ row.fcd | formatDate }}
               </template>
               <template slot="fcu" slot-scope="{ row }">
-                <UserCard :uuid="row.fcu"></UserCard>
+                <UserCard v-if="row.fcu" :uuid="row.fcu"></UserCard>
               </template>
               <template slot="lcd" slot-scope="{ row }">
                 {{ row.lcd | formatDate }}
