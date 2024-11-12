@@ -13,7 +13,7 @@
   >
     <template v-for="(bitem, bindex) in list">
       <tr
-        :key="bitem.uuid || bindex"
+        :key="bitem.hasOwnProperty('uuid') && (typeof bitem['uuid'] == 'string' || typeof bitem['uuid'] == 'number') ? bitem['uuid']: bindex"
         :class="setRowClass(bitem, selectList, bindex)"
         :style="setTr()"
         @click="clickTr(bitem, bindex, $event)"

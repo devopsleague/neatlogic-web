@@ -197,9 +197,59 @@ export default {
             }
           }
         }
-        errorList.push(...itemError);
+        errorList.push(...itemError, ...this.validAttrUnique());
       }
       return errorList;
+    },
+    validAttrUnique() {
+      // 校验属性是否唯一
+      let errorList = [];
+      let {uniqueRuleConfig = [], dataConfig = []} = this.config || {};
+      if (uniqueRuleConfig.length == 0) {
+        //如果存在设置唯一标识的字段则校验是否重复
+        const uniqueRuleList = dataConfig.filter((v) => v.config && v.config['isUnique']);
+        if (!this.$utils.isEmpty(uniqueRuleList)) {
+          let existMap = {};
+          this.tbodyList.forEach((row) => {
+            if (!this.$utils.isEmpty(row)) {
+              Object.keys(row).forEach((key) => {
+                const findUnunique = uniqueRuleList.find(d => d.uuid === key);
+                if (findUnunique && row[key]) {
+                  if (existMap[key] && existMap[key].includes(row[key])) {
+                    errorList.push({ uuid: this.formItem.uuid, error: `属性唯一：${findUnunique.label}必须唯一` });
+                  } else {
+                    existMap[key] = existMap[key] ? [...existMap[key], row[key]] : [row[key]];
+                  }
+                }
+              });
+            }
+          });
+        }
+        return errorList;
+      } else {
+        //组合属性是否唯一
+        let attrLabel = dataConfig.filter((v) => v['uuid'] && uniqueRuleConfig.includes(v['uuid']) && v.label).map((item) => item.label).join(',');
+        let tempValue = '';
+        let existList = [];
+        this.tbodyList.forEach((row) => {
+          if (!this.$utils.isEmpty(row)) {
+            tempValue = '';
+            Object.keys(row).forEach((key, index) => {
+              if (uniqueRuleConfig.includes(key) && row[key]) {
+                tempValue += `${JSON.stringify(row[key])}${index < uniqueRuleConfig.length - 1 ? '_' : ''}`;
+              }
+            });
+            if (tempValue) {
+              if (existList.includes(tempValue)) {
+                errorList.push({ uuid: uniqueRuleConfig[0], error: `属性唯一：${attrLabel}必须唯一` });
+              } else {
+                existList.push(tempValue);
+              }
+            }
+          }
+        });
+        return errorList;
+      }
     },
     validConfig() {
       const errorList = [];

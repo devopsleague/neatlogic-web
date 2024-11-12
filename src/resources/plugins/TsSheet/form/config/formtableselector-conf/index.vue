@@ -87,7 +87,7 @@
             >
               <tr v-for="(data, index) in config.dataConfig" :key="index" class="tstable-tr">
                 <td v-if="!disabled">
-                  <span class="tsfont-bar mr-xs" :title="$t('page.dragsort')" style="cursor:move"></span>
+                  <span class="tsfont-bar pr-xs" :title="$t('page.dragsort')" style="cursor:move"></span>
                 </td>
                 <td class="text-grey">
                   <div class="overflow" style="width: 80px" :title="data.label">
@@ -105,12 +105,8 @@
                     </Poptip>
                   </div>
                 </td>
-                <td>
-                  <Checkbox v-model="data.isPC" :disabled="disabled"></Checkbox>
-                </td>
-                <td>
-                  <Checkbox v-model="data.isMobile" :disabled="disabled"></Checkbox>
-                </td>
+                <td><Checkbox v-model="data.isPC" :disabled="disabled"></Checkbox></td>
+                <td><Checkbox v-model="data.isMobile" :disabled="disabled"></Checkbox></td>
                 <td>
                   <div v-if="data.isSearchable == 1">
                     <Checkbox v-model="data.isSearch" :disabled="disabled"></Checkbox>
@@ -118,7 +114,8 @@
                 </td>
                 <td v-if="!disabled">
                   <span class="tsfont-setting text-action" @click="openAttrConfigDialog(data)"></span>
-                  <span v-if="data.isExtra" class="ml-xs tsfont-close-o text-action" @click="removeExtraProperty(data)"></span>
+                  <span v-if="source !== 'scene' && data.isExtra" class="pl-xs tsfont-plus-o text-action" @click="addExtraProperty(index)"></span>
+                  <span v-if="data.isExtra" class="pl-xs tsfont-close-o text-action" @click="removeExtraProperty(data)"></span>
                 </td>
               </tr>
             </draggable>
@@ -128,6 +125,17 @@
           </div>
         </div>
       </div>
+    </TsFormItem>
+    <TsFormItem :label="$t('term.cmdb.uniquerule')" tooltip="根据属性设置，筛选出所有标记为'是否唯一'的属性，若选择下列属性配置多个字段的组合唯一性，则通过这些字段的组合来确保数据的唯一性；若未选择下列属性，则会单独对下列每个字段进行唯一性校验。" labelPosition="top">
+      <TsFormCheckbox
+        :value="config.uniqueRuleConfig"
+        :dataList="handleUniqueRuleConfigDataList"
+        class="checkbox-unique-rule-box"
+        :disabled="disabled"
+        @on-change="val => {
+          setConfig('uniqueRuleConfig', val);
+        }"
+      ></TsFormCheckbox>
     </TsFormItem>
     <!-- <TsFormItem label="分页" labelPosition="left" contentAlign="right">
       <TsFormSwitch v-model="config.needPage" :trueValue="true" :falseValue="false"></TsFormSwitch>
@@ -178,6 +186,7 @@ export default {
     TsFormSelect: () => import('@/resources/plugins/TsForm/TsFormSelect'),
     TsFormInput: () => import('@/resources/plugins/TsForm/TsFormInput'),
     TsFormSwitch: () => import('@/resources/plugins/TsForm/TsFormSwitch'),
+    TsFormCheckbox: () => import('@/resources/plugins/TsForm/TsFormCheckbox'),
     AttrConfigDialog: () => import('./formtableselector-attr-config-dialog.vue'),
     DataSourceFilter: () => import('../common/data-source-filter.vue')
   },
@@ -240,15 +249,15 @@ export default {
       this.isAttrConfigDialogShow = false;
     },
     //添加扩展属性
-    addExtraProperty() {
+    addExtraProperty(index) {
       if (this.disabled) {
         return;
       }
-      const index = this.config.dataConfig.filter(d => d.isExtra).length;
-      this.config.dataConfig.push({
+      const newIndex = this.config.dataConfig.filter(d => d.isExtra).length + 1;
+      const newProperty = {
         uuid: this.$utils.setUuid(),
         key: '',
-        label: this.$t('term.framework.extraattr') + '_' + (index + 1),
+        label: this.$t('term.framework.extraattr') + '_' + newIndex,
         isPC: true,
         isMobile: false,
         isSearch: false,
@@ -256,7 +265,12 @@ export default {
         handler: 'formtext',
         isExtra: true,
         hasValue: true
-      });
+      };
+      if (!this.$utils.isEmpty(index)) {
+        this.config.dataConfig.splice(index + 1, 0, newProperty);
+      } else {
+        this.config.dataConfig.push(newProperty);
+      }
     },
     changeMatrix(matrixUuid) {
       if (matrixUuid) {
@@ -337,6 +351,17 @@ export default {
   },
   filter: {},
   computed: {
+    handleUniqueRuleConfigDataList() {
+      let dataList = [];
+      let {dataConfig = [] } = this.config;
+      dataConfig.forEach(item => {
+        let {isUnique = false} = item.config || {};
+        if (isUnique) {
+          dataList.push({ text: item.label, value: item.uuid });
+        }
+      });
+      return dataList.length > 0 ? dataList : [];
+    }
   },
   watch: {
     'config.matrixUuid': {
@@ -356,6 +381,9 @@ export default {
 };
 </script>
 <style lang="less" scoped>
+/deep/ .ivu-checkbox-wrapper {
+  margin-right: 0;
+}
 .matrix-btn {
   position: absolute;
   right: 0;

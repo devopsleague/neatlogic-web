@@ -29,8 +29,8 @@
                 </TsFormSelect>
                 <div class="action-group action-list">
                   <span class="action-item tsfont-rotate-right" :title="$t('page.refresh')" @click="getIntegrationUuidList(true)"></span>
-                  <span v-if="isDisabledEditMatrix" class="action-item tsfont-edit text-disabled" :title="$t('message.framework.notcaneditmatrixtip')"></span>
-                  <template v-else>
+                  <!-- <span v-if="isDisabledEditMatrix" class="action-item tsfont-edit text-disabled" :title="$t('message.framework.notcaneditmatrixtip')"></span> -->
+                  <template>
                     <span
                       v-if="integrationUuid"
                       class="action-item tsfont-edit"

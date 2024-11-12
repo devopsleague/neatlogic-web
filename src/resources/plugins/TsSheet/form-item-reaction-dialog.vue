@@ -162,7 +162,10 @@ export default {
         emit: this.$t('page.emit'),
         required: this.$t('page.require'),
         clearValue: this.$t('page.clear'),
-        setValueOther: this.$t('term.framework.linkageassignment')
+        setValueOther: this.$t('term.framework.linkageassignment'),
+        allowAdd: this.$t('term.framework.allowadd'),
+        allowEdit: this.$t('term.autoexec.editable'),
+        allowDelete: this.$t('term.framework.allowdelete')
       },
       emitTypeList: emitTypeList,
       dialogConfig: {

@@ -28,6 +28,9 @@ export default {
     readonly: {},
     disable: {},
     required: {},
-    clearValue: {}
+    clearValue: {},
+    allowAdd: {},
+    allowEdit: {},
+    allowDelete: {}
   }
 };

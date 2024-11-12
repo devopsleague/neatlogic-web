@@ -3,6 +3,7 @@
     <Loading :loadingShow="loadingShow" type="fix"></Loading>
     <!-- 表单标签 -->
     <FormTagSetting
+      v-if="!loadingShow"
       :formUuid="formUuid"
       :defaultFormTag="createjobConfig.formTag"
       labelPosition="left"
@@ -129,7 +130,7 @@
       <FormAttributeParam
         ref="formAttributeParam"
         :formAttributeMappingList="createjobConfig.formAttributeMappingList"
-        :allFormitemList="allFormitemList"
+        :allFormitemList="defaultAllFormitemList"
         :exportParamList="exportParamList"
       ></FormAttributeParam>
     </div>
@@ -154,7 +155,7 @@ export default {
   },
   props: {
     formUuid: String,
-    defaultAllFormitemList: Array,
+    defaultAllFormitemList: Array, //默认表单项列表
     config: Object
   },
   data() {
@@ -162,7 +163,7 @@ export default {
       loadingShow: true,
       isFirst: true,
       isFilter: 0, //是否数据过滤
-      allFormitemList: [],
+      allFormitemList: [], //根据表单标签获取表单项列表，表单标签为空时使用默认表单项列表
       createjobConfig: {
         combopId: null,
         jobName: '',

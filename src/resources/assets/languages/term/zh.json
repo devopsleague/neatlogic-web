@@ -1317,7 +1317,9 @@
     "matrixsaveconfirm": "矩阵已被引用，是否确认修改？",
     "linkageassignment": "联动赋值",
     "conditionassignment": "条件赋值",
-    "hideattrassignment": "隐藏属性赋值"
+    "hideattrassignment": "隐藏属性赋值",
+    "allowadd": "可新增",
+    "allowdelete": "可删除"
   },
   "knowledge": {
     "document": "文档",

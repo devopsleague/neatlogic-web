@@ -73,7 +73,7 @@ export default {
   },
   props: {
     formAttributeMappingList: Array,
-    allFormitemList: Array,
+    allFormitemList: Array, 
     exportParamList: Array
   },
   data() {
@@ -83,6 +83,7 @@ export default {
   },
   beforeCreate() {},
   created() {
+    //主场景表单组件列表，formDataList仅支持文本框、文本域类型的控件
     if (this.allFormitemList && this.allFormitemList.length > 0) {
       this.formDataList = this.$utils.deepClone(this.allFormitemList).filter(item => {
         return item.handler === 'formtext' || item.handler === 'formtextarea';

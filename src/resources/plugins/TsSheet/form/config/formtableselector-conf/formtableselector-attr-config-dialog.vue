@@ -3,6 +3,13 @@
     <template v-slot>
       <div v-if="propertyLocal.isExtra">
         <TsForm ref="formitem_base" v-model="propertyLocal" :item-list="formConfig">
+          <template v-slot:isUnique>
+            <TsFormSwitch
+              v-model="propertyLocal.config.isUnique"
+              :trueValue="true"
+              :falseValue="false"
+            ></TsFormSwitch>
+          </template>
           <template v-slot:isRequired>
             <TsFormSwitch v-model="propertyLocal.config.isRequired" :trueValue="true" :falseValue="false"></TsFormSwitch>
           </template>
@@ -15,6 +22,14 @@
             ></TsFormSwitch>
           </template>
           <template v-if="['formtext', 'formtextarea'].includes(propertyLocal.handler)" v-slot:config>
+            <TsFormItem v-if="propertyLocal.handler=== 'formtext'" :label="$t('form.placeholder.checkrule')">
+              <TsFormSelect
+                v-model="propertyLocal.config.validate"
+                :dataList="ruleList"
+                transfer
+                border="border"
+              ></TsFormSelect>
+            </TsFormItem>
             <TsFormItem :label="$t('page.inputtip')">
               <TsFormInput v-model="propertyLocal.config.placeholder" :maxlength="50"></TsFormInput>
             </TsFormItem>
@@ -35,7 +50,12 @@
                   transfer
                   border="border"
                 ></TsFormSelect>
-                <TsFormInput v-else-if="propertyLocal.config.defaultValueType === 'custom'" v-model="propertyLocal.config.defaultValue" :type="propertyLocal.handler.replace('form', '')"></TsFormInput>
+                <TsFormInput
+                  v-else-if="propertyLocal.config.defaultValueType === 'custom'"
+                  v-model="propertyLocal.config.defaultValue"
+                  :validateList="propertyLocal.config.validate?[propertyLocal.config.validate]:[]"
+                  :type="propertyLocal.handler.replace('form', '')"
+                ></TsFormInput>
               </div>
             </TsFormItem>
           </template>
@@ -422,7 +442,16 @@ export default {
             { text: this.$t('page.time'), value: 'formtime' },
             {text: this.$t('term.cmdb.expression'), value: 'formexpression' }
           ],
-          validateList: ['required']
+          validateList: ['required'],
+          onChange: (val) => {
+            this.handleUniqueAttrHidden(val);
+          }
+        },
+        {
+          name: 'isUnique',
+          label: this.$t('page.isunique'),
+          type: 'slot',
+          isHidden: true
         },
         {
           name: 'isRequired',
@@ -445,7 +474,49 @@ export default {
           type: 'slot'
         }
       ],
-      isActive: false
+      isActive: false,
+      ruleList: [
+        {
+          text: this.$t('page.letter'),
+          value: 'unique_ident'
+        },
+        {
+          text: this.$t('page.lowercaseletter'),
+          value: 'lowercase'
+        },
+        {
+          text: this.$t('page.capitalletter'),
+          value: 'uppercase'
+        },
+        {
+          text: this.$t('page.number'),
+          value: 'number'
+        },
+        {
+          text: this.$t('page.lettersandnumbers'),
+          value: 'enchar'
+        },
+        {
+          text: this.$t('page.emailaddress'),
+          value: 'mail'
+        },
+        {
+          text: this.$t('page.phonenumber'),
+          value: 'phone'
+        },
+        {
+          text: this.$t('page.ip'),
+          value: 'ip'
+        },
+        {
+          text: this.$t('page.port'),
+          value: 'port'
+        },
+        {
+          text: 'URL',
+          value: 'url'
+        }
+      ]
     };
   },
   beforeCreate() {},
@@ -483,6 +554,7 @@ export default {
           }
         });
       }
+      this.handleUniqueAttrHidden(this.propertyLocal.handler);
     },
     close() {
       this.$emit('close');
@@ -587,6 +659,13 @@ export default {
     },
     changeExpression(val) {
       this.$set(this.propertyLocal.config, 'expression', val);
+    },
+    handleUniqueAttrHidden(handler) {
+      // 判断唯一属性是否显示
+      let findItem = this.formConfig.find((v) => v.name == 'isUnique');
+      if (findItem) {
+        findItem.isHidden = !(handler && !['formupload', 'formexpression', 'formtable'].includes(handler));
+      }
     }
   },
   filter: {},
