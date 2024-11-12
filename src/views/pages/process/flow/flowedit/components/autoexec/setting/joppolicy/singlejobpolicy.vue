@@ -372,7 +372,7 @@
           <Col span="4">
             <div class="text-title overflow" :class="{'require-label':r.isRequired}" :title="r.name">
               <span>{{ r.name }}</span>
-              <span v-if="r.type == 'text'">
+              <!-- <span v-if="r.type == 'text'">
                 <Tooltip
                   placement="right"
                   max-width="450"
@@ -384,7 +384,7 @@
                     <p v-html="$t('term.process.jobtextparamsvaluetip')"></p>
                   </div>
                 </Tooltip>
-              </span>
+              </span> -->
             </div>
           </Col>
           <Col span="20">
