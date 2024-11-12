@@ -78,9 +78,12 @@
                       </div>
                     </template>
                     <template v-slot:error="{ row }">
-                      <ul v-if="row.error.length > 0" class="text-error error-info">
-                        <li v-for="(error, eindex) in row.error" :key="eindex">{{ error }}</li>
-                      </ul>
+                      <Tooltip v-if="row.error.length > 0" max-width="200" :transfer="true">
+                        <span class="text-error tsfont-warning-s"></span>
+                        <ul slot="content" class="text-error error-info">
+                          <li v-for="(error, eindex) in row.error" :key="eindex">{{ error }}</li>
+                        </ul>
+                      </Tooltip>
                       <div v-else></div>
                     </template>
                   </TsTable>
