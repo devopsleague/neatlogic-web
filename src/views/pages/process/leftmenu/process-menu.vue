@@ -208,55 +208,6 @@ export default {
         this.initData(true);
       }
     },
-    save(uuid, name, authList, type, support, catalogId, catalogName) {
-      /* 保存方法
-          support 使用范围
-          catalogId 菜单类型
-      */
-      let data = {
-        uuid: uuid,
-        name: name,
-        type: type,
-        conditionConfig: {},
-        authList: authList || [],
-        support: support,
-        catalogId: catalogId,
-        catalogName: catalogName
-      };
-
-      this.$api.process.processtask
-        .saveMenu(data)
-        .then(res => {
-          if (res.Status == 'OK') {
-            this.$Message.success(this.$t('message.savesuccess'));
-            if (support) {
-              // 置空使用范围
-              this.userList.forEach(item => {
-                if (item.name == 'support') {
-                  item.value = '';
-                }
-              });
-            }
-            this.editAuthorizationDialog = false;
-            this.initData(true);
-          }
-        })
-        .catch(e => {
-          this.$Notice.error({
-            title: e.data.Message
-          });
-        });
-    },
-    saveAuthorization() {
-      // 授权，保存方法
-      let userForm = this.$refs.userForm;
-      if (userForm.valid()) {
-        let data = userForm.getFormValue();
-        let type = data.type;
-        let support = data.support || null; // 使用范围
-        this.save(this.menuUuid, this.defaultName, data.authList, type, support, this.catalogId, this.catalogName);
-      }
-    },
     delName(name, uuid, index) {
       let _this = this;
       this.$createDialog({
@@ -293,6 +244,19 @@ export default {
       }
       // let workCenterMenuData = this.workCenterMenuData || {};
       let workcenterList = this.$store.state.leftMenu.workcenterList || [];
+      if (workcenterList && workcenterList.length) {
+        for (let i = 0; i < workcenterList.length; i++) {
+          let workcenter = workcenterList[i];
+          if (workcenter.isShowTotal == 1) {
+            this.$api.process.processtask.getWorkcenterCount({ uuid: workcenter.uuid }).then(reCount => {
+              if (reCount && reCount.Status == 'OK') {
+                workcenter.processingOfMineCount = reCount.Return.processingOfMineCount;
+                this.workcenterList = this.handleGroupData(workcenterList);
+              }
+            });            
+          }
+        }
+      }
       this.workcenterList = this.handleGroupData(workcenterList);
       this.workcenterList.forEach(function(d, i) {
         d.index = i;

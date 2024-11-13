@@ -234,6 +234,10 @@ const processtask = {
     //分类列表
     return axios.post('/api/rest/workcenter/list', data);
   },
+  getWorkcenterCount(data) {
+    //分类列表
+    return axios.post('/api/rest/workcenter/count/get', data);
+  },
   saveMenu(data) {
     //保存新的工单中心
     return axios.post('/api/rest/workcenter/save', data);
