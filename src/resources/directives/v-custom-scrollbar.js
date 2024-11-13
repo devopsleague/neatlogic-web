@@ -8,17 +8,16 @@ export default {
     const tableWrapper = el;
     const timeout = 300;
     let scrollTimer = null;
-
-    // 创建自定义滚动条容器和滚动条
     const customScrollbar = document.createElement('div');
-    customScrollbar.className = 'custom-scrollbar-box';
     const scrollBar = document.createElement('div');
-    scrollBar.className = 'scroll-bar';
-    customScrollbar.appendChild(scrollBar);
-    tableWrapper.style.position = 'relative';
-    tableWrapper.appendChild(customScrollbar);
-
-    // 更新自定义滚动条的显示状态和位置
+    function createCustomScrollbar() {
+      // 创建自定义滚动条
+      customScrollbar.className = 'custom-scrollbar-box';
+      scrollBar.className = 'scroll-bar';
+      customScrollbar.appendChild(scrollBar);
+      tableWrapper.style.position = 'relative';
+      tableWrapper.appendChild(customScrollbar);
+    }
     function updateCustomScrollbar() {
       // 等待DOM渲染完成后再计算自定义滚动条的宽度
       requestAnimationFrame(() => {
@@ -95,6 +94,7 @@ export default {
       });
     }
     function hideCustomScrollbar() {
+      // 隐藏自定义滚动条
       const elements = [document.querySelector('.ivu-layout-content'), document.querySelector('.tsmodal-content'), document.querySelector('.tsslider-body')];
       const handleScroll = e => {
         e.preventDefault();
@@ -110,22 +110,31 @@ export default {
         }
       });
     }
-    updateCustomScrollbar();
-    window.addEventListener('resize', updateCustomScrollbar); // 在窗口调整大小时更新自定义滚动条
-    hideCustomScrollbar(); // 拖动滚动条的时候隐藏自定义滚动条，拖放停止后显示
-    // 保存指令实例数据
-    el.__customScrollbar__ = { customScrollbar, updateCustomScrollbar, hideCustomScrollbar };
-  },
-  update(el) {
-    // 更新自定义滚动条，确保数据回来之后，自定义滚动条的位置正确显示
-    if (el.__customScrollbar__) {
-      el.__customScrollbar__.updateCustomScrollbar();
-      el.__customScrollbar__.hideCustomScrollbar();
-    }
+    el.addEventListener('mouseover', () => {
+      // 鼠标移入的时候，才显示自定义滚动条
+      if (!el.querySelector('.scroll-bar')) {
+        createCustomScrollbar();
+        updateCustomScrollbar();
+        window.addEventListener('resize', updateCustomScrollbar); // 在窗口调整大小时更新自定义滚动条
+        hideCustomScrollbar(); // 拖动滚动条的时候隐藏自定义滚动条，拖放停止后显示
+        // 保存指令实例数据
+        el.__customScrollbar__ = { customScrollbar, updateCustomScrollbar, hideCustomScrollbar };
+      } else {
+        customScrollbar.style.display = 'block';
+        if (el.__customScrollbar__) {
+          el.__customScrollbar__.updateCustomScrollbar();
+          el.__customScrollbar__.hideCustomScrollbar();
+        }
+      }
+    });
+    el.addEventListener('mouseleave', () => {
+      // 鼠标移出的时候，隐藏自定义滚动条
+      customScrollbar.style.display = 'none';
+    });
   },
   // 当指令解绑时调用
   unbind(el) {
-    const { customScrollbar, updateCustomScrollbar } = (el && el.__customScrollbar__) || {};
+    const { customScrollbar, updateCustomScrollbar, hideCustomScrollbar } = (el && el.__customScrollbar__) || {};
     const { onScroll, onMouseDown, onMouseMove, onMouseUp } = (el && el.__scrollHandler__) || {};
     if (customScrollbar) {
       el.removeChild(customScrollbar);
@@ -139,6 +148,8 @@ export default {
     window.removeEventListener('resize', updateCustomScrollbar);
     document.removeEventListener('mousemove', onMouseMove);
     document.removeEventListener('mouseup', onMouseUp);
-    window.removeEventListener('scroll', el.__customScrollbar__.hideCustomScrollbar, true);
+    if (hideCustomScrollbar) {
+      window.removeEventListener('scroll', hideCustomScrollbar, true);
+    }
   }
 };
