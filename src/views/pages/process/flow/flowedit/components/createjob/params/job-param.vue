@@ -8,7 +8,6 @@
         :label="item.name"
         :required="!!item.isRequired"
         labelPosition="left"
-        :tooltip="item.type == 'text'?$t('term.process.jobtextparamsvaluetip'):''"
       >
         <div v-for="(m,mindex) in item.mappingList" :key="mindex" class="mapping-list">
           <TsRow :gutter="8">

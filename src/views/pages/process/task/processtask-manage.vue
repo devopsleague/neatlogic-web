@@ -236,7 +236,7 @@ export default {
   async mounted() {
     await this.getWorkcenterByUuid();
     this.searchProcessTask();
-    this.intervalRefreshSearch();
+    this.intervalRefreshSearch(true);
   },
   beforeUpdate() {},
   updated() {},
@@ -572,16 +572,17 @@ export default {
         this.timmer = null;
       }
     },
-    intervalRefreshSearch() {
+    intervalRefreshSearch(isFirst) {
       //全局自动刷新且在当前浏览器tab，才执行刷新
       if (!this.isAutoRefresh) {
         this.clearTimmer();
       } else {
-        if (document.visibilityState === 'visible') {
+        //第一次无需执行刷新操作
+        if (!isFirst && document.visibilityState === 'visible') {
           this.refreshProcessTask(false);
         }
         this.timmer = setTimeout(() => {
-          this.intervalRefreshSearch();
+          this.intervalRefreshSearch(false);
         }, this.timmerInterval);
       }
     },
