@@ -124,7 +124,8 @@
                 <Col v-if="!globalAttrConditionHideData[attr.id]" span="12" class="search-condition">
                   <TsFormSelect
                     :value="globalAttrFilterList['attr_' + attr.id] && globalAttrFilterList['attr_' + attr.id]['valueList']"
-                    :dataList="attr.itemList"
+                    dynamicUrl="/api/rest/cmdb/globalattritem/search"
+                    :params="{ attrId: attr.id }"
                     valueName="id"
                     textName="value"
                     transfer
