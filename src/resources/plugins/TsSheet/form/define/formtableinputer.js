@@ -8,6 +8,7 @@ export default {
   icon: 'tsfont-formstaticlist',
   override_config: {},
   hasValue: true,
+  excludedFromCondition: true,
   config: {
     disableDefaultValue: true,
     isRequired: false,

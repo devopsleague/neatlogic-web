@@ -589,8 +589,8 @@ export default {
           text: this.$t('page.dynamicvalue'),
           value: 'dynamic'
         }
-      ],
-      filterComponentList: ['formtableselector', 'formtableinputer', 'formsubassembly'] //过滤不参与规则的组件
+      ]
+      //filterComponentList: ['formtableselector', 'formtableinputer', 'formsubassembly'] //过滤不参与规则的组件
     };
   },
   beforeCreate() {},
@@ -921,7 +921,7 @@ export default {
       };
     },
     hasValueFormItemList() {
-      let list = this.allFormItemList.filter(d => d.hasValue && (!this.propertyLocal || (this.propertyLocal && d.uuid != this.propertyLocal.uuid)) && !this.filterComponentList.includes(d.handler));
+      let list = this.allFormItemList.filter(d => d.hasValue && (!this.propertyLocal || (this.propertyLocal && d.uuid != this.propertyLocal.uuid)) && !d.excludedFromCondition /* !this.filterComponentList.includes(d.handler)*/);
       let newList = [];
       list.forEach(item => {
         let obj = {

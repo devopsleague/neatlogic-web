@@ -151,8 +151,8 @@ export default {
           text: this.$t('page.or'),
           value: 'or'
         }
-      ],
-      filterComponentList: ['formtableselector', 'formtableinputer', 'formsubassembly'] //过滤不参与规则的组件
+      ]
+      //filterComponentList: ['formtableselector', 'formtableinputer', 'formsubassembly'] //过滤不参与规则的组件
     };
   },
   beforeCreate() {},
@@ -340,9 +340,9 @@ export default {
     hasValueFormItemList() {
       let list = [];
       if (this.reactionKey === 'setValueOther') {
-        list = this.formItemList.filter(d => d.uuid === this.formItem.uuid && !this.filterComponentList.includes(d.handler));
+        list = this.formItemList.filter(d => d.uuid === this.formItem.uuid && !d.excludedFromCondition/*!this.filterComponentList.includes(d.handler)*/);
       } else {
-        list = this.formItemList.filter(d => d.hasValue && (!this.formItem || d.uuid != this.formItem.uuid) && !this.filterComponentList.includes(d.handler));
+        list = this.formItemList.filter(d => d.hasValue && (!this.formItem || d.uuid != this.formItem.uuid) && !d.excludedFromCondition /*!this.filterComponentList.includes(d.handler)*/);
       }
       let newList = [];
       list.forEach(item => {

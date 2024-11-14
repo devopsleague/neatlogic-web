@@ -7,6 +7,7 @@ export default {
   category: 'cmdb',
   icon: 'tsfont-cientityselect',
   hasValue: true,
+  excludedFromCondition: true,
   override_config: {},
   config: {
     disableDefaultValue: true,
