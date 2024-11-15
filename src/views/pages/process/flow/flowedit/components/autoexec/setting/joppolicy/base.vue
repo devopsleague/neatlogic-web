@@ -37,7 +37,7 @@ export default {
       validateList: ['required'],
       formDataList: [], //表单赋值：仅支持文本框、文本域类型的控件赋值
       processTaskParamConfig: {
-        dynamicUrl: '/api/rest/process/condition/list',
+        dynamicUrl: '/api/rest/process/param/list',
         textName: 'label',
         valueName: 'name',
         border: 'border',
