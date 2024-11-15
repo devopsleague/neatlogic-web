@@ -23,10 +23,10 @@ export default (currentValue, oldValue, condition) => {
       if (conditionValueList.filter(item => valueList.some(c => c === item)).length > 0) {
         isInclude = true;
       }
-    } else if ((typeof currentValue == 'string' || typeof currentValue == 'number') && conditionValue.indexOf(currentValue) > -1) {
+    } else if ((typeof currentValue == 'string' || typeof currentValue == 'number') && currentValue.indexOf(conditionValue) > -1) {
       isInclude = true;
     } else if (typeof currentValue === 'object') {
-      if (conditionValueList.indexOf(currentValue[uuid]) > -1) {
+      if (currentValue[uuid].indexOf(conditionValueList) > -1) {
         isInclude = true;
       }
     } 
