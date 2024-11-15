@@ -166,7 +166,7 @@ export default {
         }
       ],
       processTaskParamConfig: {
-        dynamicUrl: '/api/rest/process/condition/list',
+        dynamicUrl: '/api/rest/process/param/list',
         textName: 'label',
         valueName: 'name',
         border: 'border',
