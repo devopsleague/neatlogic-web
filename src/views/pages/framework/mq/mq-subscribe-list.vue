@@ -67,7 +67,7 @@ export default {
       subscribeData: {},
       theadList: [
         { key: 'name', title: this.$t('page.uniquekey') },
-        { key: 'topicName', title: this.$t('page.theme') },
+        { key: 'topicLabel', title: this.$t('page.theme') },
         { key: 'isActive', title: this.$t('page.enable') },
         { key: 'error', title: this.$t('page.exception')},
         { key: 'isDurable', title: this.$t('term.framework.isdurable') },

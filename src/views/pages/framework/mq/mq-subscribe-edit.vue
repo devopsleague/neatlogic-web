@@ -7,11 +7,29 @@
       @on-ok="save"
     >
       <template v-slot:header>
-        <div v-if="id">{{ $t('dialog.title.edittarget',{'target':$t('term.framework.subscribe')}) }}</div>
-        <div v-if="!id">{{ $t('dialog.title.addtarget',{'target':$t('term.framework.subscribe')}) }}</div>
+        <div v-if="id">{{ $t('dialog.title.edittarget', { target: $t('term.framework.subscribe') }) }}</div>
+        <div v-if="!id">{{ $t('dialog.title.addtarget', { target: $t('term.framework.subscribe') }) }}</div>
       </template>
       <template v-slot>
         <TsForm ref="form" :item-list="formConfig">
+          <template v-slot:topicName>
+            <span v-if="!subscribeData.handler" class="text-grey">请先选择消息队列类型</span>
+            <TsFormSelect
+              v-else
+              :value="subscribeData.topicName"
+              :dataList="topicList"
+              transfer
+              border="border"
+              valueName="name"
+              :validateList="['required']"
+              textName="label"
+              @on-change="
+                name => {
+                  subscribeData.topicName = name;
+                }
+              "
+            ></TsFormSelect>
+          </template>
         </TsForm>
       </template>
     </TsDialog>
@@ -21,10 +39,11 @@
 export default {
   name: '',
   components: {
-    TsForm: () => import('@/resources/plugins/TsForm/TsForm')
+    TsForm: () => import('@/resources/plugins/TsForm/TsForm'),
+    TsFormSelect: () => import('@/resources/plugins/TsForm/TsFormSelect')
   },
   props: {
-    id: {type: Number}
+    id: { type: Number }
   },
   data() {
     const _this = this;
@@ -35,18 +54,30 @@ export default {
         isShow: false,
         width: '600px'
       },
+      topicList: [],
       subscribeData: {},
       formConfig: [
         {
           type: 'text',
           name: 'name',
           label: this.$t('page.uniquekey'),
-          width: '100%',
           readonly: !!_this.name,
           maxlength: 30,
           validateList: ['required'],
-          onChange: (name) => {
+          onChange: name => {
             this.subscribeData.name = name;
+          }
+        },
+        {
+          type: 'radio',
+          name: 'handler',
+          label: '消息队列类型',
+          readonly: !!this.id,
+          dataList: [{ value: 'artemis', text: 'ActiveMQ Artemis' }],
+          validateList: ['required'],
+          onChange: name => {
+            this.subscribeData.handler = name;
+            this.getTopicList(name);
           }
         },
         {
@@ -58,31 +89,25 @@ export default {
           valueName: 'className',
           validateList: ['required'],
           textName: 'name',
-          onChange: (name) => {
+          onChange: name => {
             this.subscribeData.className = name;
           }
         },
         {
-          type: 'select',
+          type: 'slot',
           name: 'topicName',
-          label: this.$t('page.theme'),
-          width: '100%',
-          readonly: !!_this.name,
-          url: '/api/rest/mq/topic/list',
-          valueName: 'name',
-          validateList: ['required'],
-          textName: 'label',
-          onChange: (name) => {
-            this.subscribeData.topicName = name;
-          }
+          label: this.$t('page.theme')
         },
         {
           type: 'radio',
           name: 'isActive',
           label: this.$t('page.enable'),
           validateList: ['required'],
-          dataList: [{value: 1, text: this.$t('page.yes')}, {value: 0, text: this.$t('page.no')}],
-          onChange: (name) => {
+          dataList: [
+            { value: 1, text: this.$t('page.yes') },
+            { value: 0, text: this.$t('page.no') }
+          ],
+          onChange: name => {
             this.subscribeData.isActive = name;
           }
         },
@@ -92,9 +117,12 @@ export default {
           label: this.$t('term.framework.isdurable'),
           width: '100%',
           validateList: ['required'],
-          dataList: [{value: 1, text: this.$t('term.framework.dursubs')}, {value: 0, text: this.$t('term.framework.tempsubs')}],
+          dataList: [
+            { value: 1, text: this.$t('term.framework.dursubs') },
+            { value: 0, text: this.$t('term.framework.tempsubs') }
+          ],
           desc: this.$t('message.framework.isdurabledesc'),
-          onChange: (name) => {
+          onChange: name => {
             this.subscribeData.isDurable = name;
           }
         },
@@ -104,7 +132,7 @@ export default {
           label: this.$t('page.explain'),
           width: '100%',
           maxlength: 200,
-          onChange: (name) => {
+          onChange: name => {
             this.subscribeData.description = name;
           }
         }
@@ -112,10 +140,13 @@ export default {
     };
   },
   beforeCreate() {},
-  created() {},
+  async created() {
+    await this.getSubscribeById();
+    this.getTopicList(this.subscribeData.handler);
+  },
   beforeMount() {},
   mounted() {
-    this.getSubscribeById();
+   
   },
   beforeUpdate() {},
   updated() {},
@@ -124,6 +155,14 @@ export default {
   beforeDestroy() {},
   destroyed() {},
   methods: {
+    getTopicList(mq) {
+      this.topicList = [];
+      if (mq) {
+        this.$api.framework.mq.listTopic({ handler: mq }).then(res => {
+          this.topicList = res.Return;
+        });
+      }
+    },
     close(needRefresh) {
       this.$emit('close', needRefresh);
     },
@@ -138,9 +177,9 @@ export default {
         });
       }
     },
-    getSubscribeById() {
+    async getSubscribeById() {
       if (this.id) {
-        this.$api.framework.mq.getSubscribeById(this.id).then(res => {
+        await this.$api.framework.mq.getSubscribeById(this.id).then(res => {
           this.subscribeData = res.Return;
           this.formConfig.forEach(element => {
             this.$set(element, 'value', this.subscribeData[element.name]);
@@ -154,5 +193,4 @@ export default {
   watch: {}
 };
 </script>
-<style lang="less">
-</style>
+<style lang="less"></style>

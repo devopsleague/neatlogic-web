@@ -12,8 +12,8 @@ const mq = {
   listSubscribeHandler() {
     return axios.post('/api/rest/mq/subscribehandler/list', {});
   },
-  listTopic() {
-    return axios.post('/api/rest/mq/topic/list', {});
+  listTopic(params) {
+    return axios.post('/api/rest/mq/topic/list', params || {});
   },
   saveTopic(params) {
     return axios.post('/api/rest/mq/topic/save', params);
