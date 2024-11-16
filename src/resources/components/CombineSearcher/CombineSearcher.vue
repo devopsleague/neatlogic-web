@@ -19,17 +19,17 @@
           </template>
           <span v-else>{{ text }}</span>
         </span>
-        <TsForm
-          ref="form"
-          v-model="searchValue"
-          :itemList="searchList"
-          :labelPosition="labelPosition"
-          :labelWidth="labelWidth"
-          filterEmpty
-          :textConfig.sync="textConfig"
-          class="none"
-        ></TsForm>
       </span>
+      <TsForm
+        ref="form"
+        v-model="searchValue"
+        :itemList="searchList"
+        :labelPosition="labelPosition"
+        :labelWidth="labelWidth"
+        filterEmpty
+        :textConfig.sync="textConfig"
+        class="none"
+      ></TsForm>
     </div>
     <template v-else>
       <div
