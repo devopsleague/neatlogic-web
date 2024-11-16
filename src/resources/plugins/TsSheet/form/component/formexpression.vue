@@ -1,6 +1,7 @@
 <template>
   <div>
     {{ expressionValue }}
+    <div v-if="!expressionValue && vaildError" class="form-error-tip">{{ vaildError }}</div>
   </div>
 </template>
 <script>
@@ -20,7 +21,8 @@ export default {
   data() {
     return {
       expressionValue: '',
-      whiteList: ['formtext', 'formdate', 'formtime', 'formselect', 'formradio', 'formnumber']
+      whiteList: ['formtext', 'formdate', 'formtime', 'formselect', 'formradio', 'formnumber'],
+      vaildError: ''
     };
   },
   beforeCreate() {},
@@ -126,6 +128,15 @@ export default {
       } else {
         return '';
       }
+    },
+    validData() {
+      const errorList = [];
+      this.vaildError = '';
+      if (this.formItem.config.isRequired && this.$utils.isEmpty(this.expressionValue)) {
+        this.vaildError = this.$t('form.validate.required', {'target': this.$t('page.value')});
+        errorList.push({uuid: this.formItem.uuid, error: this.formItem.label + '：' + this.vaildError});
+      }
+      return errorList;
     }
   },
   filter: {},
