@@ -8,7 +8,12 @@
         </div>
       </template>
     </Alert>
-    <TsTable v-if="handlerStepInfo.jobList && handlerStepInfo.jobList.length > 0" :theadList="theadList" :tbodyList="handlerStepInfo.jobList">
+    <TsTable
+      v-if="handlerStepInfo.jobList && handlerStepInfo.jobList.length > 0"
+      :theadList="theadList"
+      :tbodyList="handlerStepInfo.jobList"
+      height="200px"
+    >
       <template slot="name" slot-scope="{ row }">
         <span class="text-href" @click="gotoJopDetail(row)">
           {{ row.name }}
