@@ -24,11 +24,11 @@
         >
           <template
             v-for="(extra) in extraList"
-            v-slot:[extra.uuid]="{row}"
+            v-slot:[extra.uuid]="{row,index}"
           >
             <div :key="extra.uuid" class="table-item" @click.stop>
               <FormItem
-                :ref="'formitem_true_' + row.uuid"
+                :ref="'formitem_true_' + extra.uuid + '_' + index"
                 :formItem="getExtraFormItem(extra,row)"
                 :formItemList="$utils.deepClone(extraList.concat(formItemList))"
                 :disabled="disabled"
