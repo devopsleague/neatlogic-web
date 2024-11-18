@@ -513,6 +513,7 @@ export default {
           label: this.$t('term.framework.inputtype'),
           type: 'select',
           transfer: true,
+          clearable: false,
           dataList: [
             { text: this.$t('page.input'), value: 'formtext' },
             { text: this.$t('page.textfield'), value: 'formtextarea' },
@@ -526,6 +527,7 @@ export default {
           validateList: ['required'],
           onChange: (val) => {
             this.handleUniqueAttrHidden(val);
+            this.changeHandler(val);
           }
         },
         {
@@ -637,7 +639,7 @@ export default {
         }
       }
       if (!this.propertyLocal.reaction) {
-        this.$set(this.propertyLocal, 'reaction', this.reaction);
+        this.$set(this.propertyLocal, 'reaction', this.$utils.deepClone(this.reaction));
       } else {
         Object.keys(this.reaction).forEach((key) => {
           if (!this.propertyLocal.reaction.hasOwnProperty(key)) {
@@ -808,24 +810,18 @@ export default {
       this.$set(this.reactionError, key, !isValid);
     },
     changeHandler(val) {
-      this.propertyLocal.reaction = null;
-      this.$nextTick(() => {
-        this.$set(this.propertyLocal, 'reaction', this.$utils.deepClone(this.reaction));
-        this.$set(this.propertyLocal, 'value', null);
-        if (val === 'formexpression') {
-          this.$set(this.propertyLocal.config, 'isReadOnly', true);
-        }
-        if (val === 'formtext' || val === 'formtextarea') {
-          // 联动规则(赋值)：是否可以动态赋值
-          this.$set(this.propertyLocal, 'isDynamicValue', true);
-        } else {
-          this.$set(this.propertyLocal, 'isDynamicValue', false);
-        }
-        this.isReady = false;
-        this.$nextTick(() => {
-          this.isReady = true;
-        });
-      });
+      this.$set(this.propertyLocal, 'config', {});
+      this.$set(this.propertyLocal, 'reaction', this.$utils.deepClone(this.reaction));
+      this.$set(this.propertyLocal, 'value', null);
+      if (val === 'formexpression') {
+        this.$set(this.propertyLocal.config, 'isReadOnly', true);
+      }
+      if (val === 'formtext' || val === 'formtextarea') {
+        // 联动规则(赋值)：是否可以动态赋值
+        this.$set(this.propertyLocal, 'isDynamicValue', true);
+      } else {
+        this.$set(this.propertyLocal, 'isDynamicValue', false);
+      }
     }
   },
   filter: {},
@@ -967,16 +963,6 @@ export default {
               this.isReady = true;
             });
           }
-        }
-      },
-      deep: true,
-      immediate: true
-    },
-    'propertyLocal.handler': {
-      handler: function(newVal, oldVal) {
-        if (newVal && oldVal && oldVal != newVal) {
-          this.$set(this.propertyLocal, 'config', {});
-          this.changeHandler(newVal);
         }
       },
       deep: true,
