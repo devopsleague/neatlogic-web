@@ -9,6 +9,9 @@ const mq = {
       params: params
     });
   },
+  listMqHandler(params) {
+    return axios.post('/api/rest/mq/mqhandler/list', params || {});
+  },
   listSubscribeHandler() {
     return axios.post('/api/rest/mq/subscribehandler/list', {});
   },
