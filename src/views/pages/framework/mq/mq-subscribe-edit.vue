@@ -1,17 +1,27 @@
 <template>
   <div>
-    <TsDialog
-      :is-show="true"
-      v-bind="dialogConfig"
-      @on-close="close"
-      @on-ok="save"
-    >
+    <TsDialog v-bind="dialogConfig" @on-close="close">
       <template v-slot:header>
         <div v-if="id">{{ $t('dialog.title.edittarget', { target: $t('term.framework.subscribe') }) }}</div>
         <div v-if="!id">{{ $t('dialog.title.addtarget', { target: $t('term.framework.subscribe') }) }}</div>
       </template>
       <template v-slot>
         <TsForm ref="form" :item-list="formConfig">
+          <template v-slot:handler>
+            <TsFormRadio
+              v-if="handlerList && handlerList.length > 0"
+              :readonly="!!id"
+              :dataList="handlerList"
+              :validateList="['required']"
+              @on-change="
+                name => {
+                  $set(subscribeData, 'handler', name);
+                  getTopicList(name);
+                }
+              "
+            ></TsFormRadio>
+            <span v-else class="text-grey">没有可用的消息队列</span>
+          </template>
           <template v-slot:topicName>
             <span v-if="!subscribeData.handler" class="text-grey">请先选择消息队列类型</span>
             <TsFormSelect
@@ -32,6 +42,10 @@
           </template>
         </TsForm>
       </template>
+      <template v-slot:footer>
+        <Button @click="close()">{{ $t('page.cancel') }}</Button>
+        <Button v-if="handlerList && handlerList.length > 0" type="primary" @click="save()">{{ $t('page.confirm') }}</Button>
+      </template>
     </TsDialog>
   </div>
 </template>
@@ -40,7 +54,8 @@ export default {
   name: '',
   components: {
     TsForm: () => import('@/resources/plugins/TsForm/TsForm'),
-    TsFormSelect: () => import('@/resources/plugins/TsForm/TsFormSelect')
+    TsFormSelect: () => import('@/resources/plugins/TsForm/TsFormSelect'),
+    TsFormRadio: () => import('@/resources/plugins/TsForm/TsFormRadio')
   },
   props: {
     id: { type: Number }
@@ -51,10 +66,11 @@ export default {
       dialogConfig: {
         type: 'modal',
         maskClose: false,
-        isShow: false,
+        isShow: true,
         width: 'small'
       },
       topicList: [],
+      handlerList: [],
       subscribeData: {},
       formConfig: [
         {
@@ -69,19 +85,9 @@ export default {
           }
         },
         {
-          type: 'radio',
+          type: 'slot',
           name: 'handler',
-          label: '消息队列类型',
-          readonly: !!this.id,
-          dataList: [
-            { value: 'artemis', text: 'ActiveMQ Artemis' },
-            { value: 'kafka', text: 'Apache Kafka' }
-          ],
-          validateList: ['required'],
-          onChange: name => {
-            this.subscribeData.handler = name;
-            this.getTopicList(name);
-          }
+          label: this.$t('term.framework.mqhandler')
         },
         {
           type: 'select',
@@ -145,6 +151,7 @@ export default {
   beforeCreate() {},
   async created() {
     await this.getSubscribeById();
+    this.getMqHandlerList();
     this.getTopicList(this.subscribeData.handler);
   },
   beforeMount() {},
@@ -156,6 +163,11 @@ export default {
   beforeDestroy() {},
   destroyed() {},
   methods: {
+    getMqHandlerList() {
+      this.$api.framework.mq.listMqHandler({ isEnable: true }).then(res => {
+        this.handlerList = res.Return;
+      });
+    },
     getTopicList(mq) {
       this.topicList = [];
       if (mq) {

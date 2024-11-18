@@ -1320,7 +1320,9 @@
     "hideattrassignment": "隐藏属性赋值",
     "allowadd": "可新增",
     "allowdelete": "可删除",
-    "mqtype": "消息队列类型"
+    "mqtype": "消息队列类型",
+    "notavailable": "不可用",
+    "mqhandler": "消息队列组件"
   },
   "knowledge": {
     "document": "文档",

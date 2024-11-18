@@ -3,10 +3,21 @@
     <div class="padding-b">
       <span class="text-action tsfont-plus" @click="editSubscribe()">{{ $t('term.framework.subscribe') }}</span>
     </div>
-    <TsTable v-if="subscribeData" v-bind="subscribeData">
-      <template slot="isDurable" slot-scope="{ row }">
+    <TsTable v-if="subscribeData" v-bind="subscribeData" :theadList="theadList">
+      <!-- <template slot="isDurable" slot-scope="{ row }">
         <span v-if="row.isDurable == 1">{{ $t('term.framework.dursubs') }}</span>
         <span v-else>{{ $t('term.framework.tempsubs') }}</span>
+      </template>-->
+      <template v-slot:handlerName="{ row }">
+        <span>{{ row.handlerName }}</span>
+        <span>
+          <Tooltip
+            v-if="!row.isEnable"
+            placement="top"
+            :transfer="true"
+            content="消息队列组件不可用"
+          ><span v-if="!row.isEnable" class="text-error tsfont-warning-o"></span></Tooltip>
+        </span>
       </template>
       <template slot="name" slot-scope="{ row }">
         <span class="text-href" @click.stop="editSubscribe(row)">{{ row.name }}</span>
@@ -68,10 +79,10 @@ export default {
           title: this.$t('page.uniquekey')
         },
         { key: 'topicLabel', title: this.$t('page.theme') },
-        { key: 'handlerName', title: this.$t('term.framework.mqtype') },
+        { key: 'handlerName', title: this.$t('term.framework.mqhandler') },
         { key: 'isActive', title: this.$t('page.enable') },
         { key: 'error', title: this.$t('page.exception') },
-        { key: 'isDurable', title: this.$t('term.framework.isdurable') },
+        /*{ key: 'isDurable', title: this.$t('term.framework.isdurable') },*/
         { key: 'description', title: this.$t('page.explain') },
         { key: 'action' }
       ]
@@ -127,13 +138,13 @@ export default {
       }
       this.$api.framework.mq.searchSubscribe(this.searchParam).then(res => {
         this.subscribeData = res.Return;
-        this.subscribeData.theadList = this.theadList;
       });
     },
     toggleSubscribeActive(row) {
       this.$api.framework.mq.toggleSubscribeActive(row).then(res => {
         if (res.Status == 'OK') {
           this.$Message.success(this.$t('message.executesuccess'));
+          this.searchSubscribe();
         }
       });
     }

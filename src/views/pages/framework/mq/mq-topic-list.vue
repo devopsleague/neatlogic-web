@@ -10,6 +10,17 @@
         <span v-if="row.isActive == 1" class="text-success">{{ $t('page.yes') }}</span>
         <span v-else class="text-grey">{{ $t('page.no') }}</span>
       </template>
+      <template v-slot:handlerName="{ row }">
+        <span>{{ row.handlerName }}</span>
+        <Tooltip
+          v-if="!row.isEnable"
+          placement="top"
+          :transfer="true"
+          content="消息队列组件不可用"
+        >
+          <span v-if="!row.isEnable" class="text-error tsfont-warning-o"></span>
+        </Tooltip>
+      </template>
       <template slot="action" slot-scope="{ row }">
         <div class="tstable-action">
           <ul class="tstable-action-ul">
@@ -47,7 +58,7 @@ export default {
         theadList: [
           { key: 'name', title: this.$t('page.uniquekey') },
           { key: 'label', title: this.$t('page.name') },
-          { key: 'handlerName', title: this.$t('term.framework.mqtype') },
+          { key: 'handlerName', title: this.$t('term.framework.mqhandler') },
           { key: 'isActive', title: this.$t('page.enable') },
           { key: 'description', title: this.$t('page.explain') },
           { key: 'action', title: '' }
@@ -83,6 +94,7 @@ export default {
       this.$api.framework.mq.toggleTopicActive(topic).then(res => {
         if (res.Status == 'OK') {
           this.$Message.success(this.$t('message.executesuccess'));
+          this.listTopic();
         }
       });
     },
