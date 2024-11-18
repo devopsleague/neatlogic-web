@@ -1,5 +1,5 @@
 <template>
-  <div class="mq-overview">
+  <div class="mt-md">
     <TsContain hideHeader>
       <template v-slot:content>
         <Tabs
@@ -70,26 +70,4 @@ export default {
 };
 </script>
 <style lang="less" scope>
-@import (reference) '~@/resources/assets/css/variable.less';
-.mq-overview {
-  padding-top: 16px;
-  .order-tabs-title {
-    width: 100%;
-    height: 56px;
-    line-height: 54px;
-    // border-bottom: 1px solid;
-    li {
-      display: inline-block;
-      text-align: center;
-      padding: 0 16px;
-      cursor: pointer;
-      &.active {
-        border-bottom: 2px solid;
-        .title-box {
-          display: inline-block;
-        }
-      }
-    }
-  }
-}
 </style>

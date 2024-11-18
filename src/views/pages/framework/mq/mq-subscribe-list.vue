@@ -15,7 +15,7 @@
         <span v-if="row.isActive == 1" class="text-success">{{ $t('page.yes') }}</span>
         <span v-else class="text-grey">{{ $t('page.no') }}</span>
       </template>
-      <template slot="error" slot-scope="{ row } ">
+      <template slot="error" slot-scope="{ row }">
         <Poptip
           v-if="row.error"
           transfer
@@ -24,7 +24,7 @@
           width="300"
           :content="row.error"
         >
-          <span class="text-error tsfont-warning-o" style="cursor:help"></span>
+          <span class="text-error tsfont-warning-o" style="cursor: help"></span>
         </Poptip>
       </template>
       <template slot="action" slot-scope="{ row }">
@@ -39,10 +39,7 @@
                 @on-change="toggleSubscribeActive(row)"
               ></TsFormSwitch>
             </li>
-            <li
-              class="tsfont-trash-o"
-              @click="deleteSubscribe(row)"
-            >{{ $t('page.delete') }}</li>
+            <li class="tsfont-trash-o" @click="deleteSubscribe(row)">{{ $t('page.delete') }}</li>
           </ul>
         </div>
       </template>
@@ -66,10 +63,14 @@ export default {
       searchParam: {},
       subscribeData: {},
       theadList: [
-        { key: 'name', title: this.$t('page.uniquekey') },
+        {
+          key: 'name',
+          title: this.$t('page.uniquekey')
+        },
         { key: 'topicLabel', title: this.$t('page.theme') },
+        { key: 'handlerName', title: this.$t('term.framework.mqtype') },
         { key: 'isActive', title: this.$t('page.enable') },
-        { key: 'error', title: this.$t('page.exception')},
+        { key: 'error', title: this.$t('page.exception') },
         { key: 'isDurable', title: this.$t('term.framework.isdurable') },
         { key: 'description', title: this.$t('page.explain') },
         { key: 'action' }
@@ -100,16 +101,14 @@ export default {
     deleteSubscribe(sub) {
       this.$createDialog({
         title: this.$t('dialog.title.deleteconfirm'),
-        content: this.$t('dialog.content.deleteconfirm', {target: sub.name}),
+        content: this.$t('dialog.content.deleteconfirm', { target: sub.name }),
         btnType: 'error',
         'on-ok': vnode => {
-          this.$api.framework.mq
-            .deleteSubscribe(sub.id)
-            .then(res => {
-              this.$Message.success(this.$t('message.deletesuccess'));
-              vnode.isShow = false;
-              this.searchSubscribe();
-            });
+          this.$api.framework.mq.deleteSubscribe(sub.id).then(res => {
+            this.$Message.success(this.$t('message.deletesuccess'));
+            vnode.isShow = false;
+            this.searchSubscribe();
+          });
         },
         'on-cancel': vnode => {
           vnode.isShow = false;

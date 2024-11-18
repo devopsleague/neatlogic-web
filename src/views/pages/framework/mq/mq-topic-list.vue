@@ -47,6 +47,7 @@ export default {
         theadList: [
           { key: 'name', title: this.$t('page.uniquekey') },
           { key: 'label', title: this.$t('page.name') },
+          { key: 'handlerName', title: this.$t('term.framework.mqtype') },
           { key: 'isActive', title: this.$t('page.enable') },
           { key: 'description', title: this.$t('page.explain') },
           { key: 'action', title: '' }

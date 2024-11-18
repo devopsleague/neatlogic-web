@@ -1319,7 +1319,8 @@
     "conditionassignment": "Conditional assignment",
     "hideattrassignment": "Hidden attribute assignment",
     "allowadd": "Can be added",
-    "allowdelete": "Can be deleted"
+    "allowdelete": "Can be deleted",
+    "mqtype": "Message queue type"
   },
   "knowledge": {
     "document": "Document",

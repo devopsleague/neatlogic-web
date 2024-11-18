@@ -52,7 +52,7 @@ export default {
         type: 'modal',
         maskClose: false,
         isShow: false,
-        width: '600px'
+        width: 'small'
       },
       topicList: [],
       subscribeData: {},
@@ -73,7 +73,10 @@ export default {
           name: 'handler',
           label: '消息队列类型',
           readonly: !!this.id,
-          dataList: [{ value: 'artemis', text: 'ActiveMQ Artemis' }],
+          dataList: [
+            { value: 'artemis', text: 'ActiveMQ Artemis' },
+            { value: 'kafka', text: 'Apache Kafka' }
+          ],
           validateList: ['required'],
           onChange: name => {
             this.subscribeData.handler = name;
@@ -111,7 +114,7 @@ export default {
             this.subscribeData.isActive = name;
           }
         },
-        {
+        /*{
           type: 'radio',
           name: 'isDurable',
           label: this.$t('term.framework.isdurable'),
@@ -125,7 +128,7 @@ export default {
           onChange: name => {
             this.subscribeData.isDurable = name;
           }
-        },
+        },*/
         {
           type: 'textarea',
           name: 'description',
@@ -145,9 +148,7 @@ export default {
     this.getTopicList(this.subscribeData.handler);
   },
   beforeMount() {},
-  mounted() {
-   
-  },
+  mounted() {},
   beforeUpdate() {},
   updated() {},
   activated() {},
