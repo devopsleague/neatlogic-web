@@ -130,7 +130,7 @@ export default {
         this.defaultSearchValue = defaultSearchValue;
         this.searchVal = defaultSearchValue;
         if (defaultSearchValue && defaultSearchValue.hasOwnProperty('conditionGroupList')) {
-          this.complexModeSearchValue = defaultSearchValue; // 复杂模式值回显搜索
+          this.complexModeSearchValue = this.$utils.deepClone(defaultSearchValue); // 复杂模式值回显搜索
         }
       }
       this.getDataList();
