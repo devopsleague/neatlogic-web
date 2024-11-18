@@ -141,6 +141,10 @@ export default {
         runnergroup: {
           icon: 'tsfont-ip-object',
           text: this.$t('term.deploy.actuatorgroup')
+        },
+        runnergrouptag: {
+          icon: 'tsfont-ip-object',
+          text: this.$t('term.deploy.actuatorgrouptag')
         }
       },
       multipleList: ['multiselect', 'checkbox'],

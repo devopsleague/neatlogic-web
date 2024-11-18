@@ -1,6 +1,6 @@
 <template>
   <div>
-    <template v-if="value && !$utils.isEmpty(value)">
+    <template v-if="!$utils.isEmpty(value)">
       <UserCard
         v-for="item in value"
         :key="item"
@@ -19,7 +19,7 @@ export default {
     UserCard: () => import('@/resources/components/UserCard/UserCard.vue')
   },
   props: {
-    value: [Array]
+    value: [Array, String]
   },
   data() {
     return {};
