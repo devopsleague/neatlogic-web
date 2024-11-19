@@ -7,8 +7,10 @@
         :defaultSearchValue="defaultSearchValue"
         class="search"
         @changeValue="changeValue"
+        @advancedModeSearch="advancedModeSearch"
       ></FilterSearch>
     </div>
+    <Loading :loadingShow="loadingShow" type="fix"></Loading>
     <div v-if="!loadingShow">
       <TsTable
         ref="table"
@@ -50,6 +52,7 @@ export default {
   data() {
     return {
       searchVal: {},
+      complexModeSearchValue: {}, // 复杂模式搜索值
       theadList: [
         { title: this.$t('page.ip'), key: 'ip'},
         { title: this.$t('page.port'), key: 'port'},
@@ -108,10 +111,16 @@ export default {
         currentPage: type == 'currentPage' ? value : this.currentPage,
         pageSize: type == 'pageSize' ? value : this.pageSize
       };
-      param = Object.assign(param, this.searchVal);
-      this.searchNodeList(param);
+      if (this.complexModeSearchValue && !this.$utils.isEmptyObj(this.complexModeSearchValue)) {
+        // 复杂模式搜索
+        this.advancedModeSearch({...this.complexModeSearchValue, ...param});
+      } else {
+        param = Object.assign(param, this.searchVal);
+        this.searchNodeList(param);
+      }
     },
     changeValue(val) {
+      this.complexModeSearchValue = {};
       this.searchVal = this.$utils.deepClone(val);
       this.getDataList('currentPage', 1);
     },
@@ -120,8 +129,26 @@ export default {
         let defaultSearchValue = this.config.filter;
         this.defaultSearchValue = defaultSearchValue;
         this.searchVal = defaultSearchValue;
+        if (defaultSearchValue && defaultSearchValue.hasOwnProperty('conditionGroupList')) {
+          this.complexModeSearchValue = this.$utils.deepClone(defaultSearchValue); // 复杂模式值回显搜索
+        }
       }
       this.getDataList();
+    },
+    advancedModeSearch(searchVal) {
+      // 复杂模式搜索
+      let params = Object.assign({currentPage: 1, pageSize: 10}, searchVal);
+      params.cmdbGroupType = this.opType;
+      this.complexModeSearchValue = searchVal;
+      this.loadingShow = true;
+      this.$api.autoexec.action.searchResourceCustomList(params).then(res => {
+        if (res.Status == 'OK') {
+          this.tableData = res.Return;
+          this.$set(this.tableData, 'theadList', this.theadList);
+        }
+      }).finally(() => {
+        this.loadingShow = false;
+      });
     }
   },
   computed: {},
