@@ -973,6 +973,9 @@ export default {
       handler: function(newVal, oldVal) {
         if (newVal && oldVal && oldVal != newVal) {
           this.$set(this.propertyLocal, 'config', {});
+          if (newVal === 'formexpression') {
+            this.$set(this.propertyLocal.config, 'isReadOnly', true);
+          }
           this.changeHandler(newVal);
         }
       },
