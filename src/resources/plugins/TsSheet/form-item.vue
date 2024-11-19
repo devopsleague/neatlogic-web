@@ -126,6 +126,7 @@
 import formItems from './form/component/index.js';
 import conditionMixin from './form/conditionexpression/condition-mixin.js';
 import { REACTION } from './form/reaction/index.js';
+import { FORMITEMS } from './form/formitem-list.js';
 export default {
   name: '',
   components: {
@@ -221,6 +222,7 @@ export default {
   },
   beforeCreate() {},
   created() {
+    this.updateConfig();
     this.initStatus();
     this.initReactionWatch();
   },
@@ -479,6 +481,26 @@ export default {
     setExtendValue(val) {
       if (this.formExtendData) {
         this.$set(this.formExtendData, this.formItem.uuid, val);
+      }
+    },
+    updateConfig() {
+      if (this.mode === 'edit') {
+        //更新配置
+        const newFormItem = FORMITEMS.find(d => d.handler === this.formItem.handler && d.category === this.formItem.category);
+        if (!newFormItem) {
+          return;
+        }
+        Object.keys(newFormItem).forEach(key => {
+          if (!this.formItem.hasOwnProperty(key)) {
+            this.$set(this.formItem, key, newFormItem[key]);
+          } else if (!this.$utils.isEmpty(newFormItem[key]) && typeof newFormItem[key] === 'object') {
+            Object.keys(newFormItem[key]).forEach(subKey => {
+              if (!this.formItem[key].hasOwnProperty(subKey)) {
+                this.$set(this.formItem[key], subKey, newFormItem[key][subKey]);
+              }
+            });
+          }
+        });
       }
     }
   },
