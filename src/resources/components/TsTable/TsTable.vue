@@ -391,7 +391,7 @@ export default {
     pageSizeOpts: {
       //每页条数切换的配置
       type: Array,
-      default: () => [10, 20, 30, 40]
+      default: () => [10, 20, 30, 40, 60, 80, 100]
     },
     canEdit: {
       //是否可编辑

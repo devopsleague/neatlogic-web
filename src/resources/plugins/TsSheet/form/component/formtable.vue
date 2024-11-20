@@ -154,7 +154,7 @@ export default {
       this.setValue(this.tableData.tbodyList);
     },
     filterUuid(obj) {
-      if (obj.uuid) {
+      if (obj && obj.uuid) {
         delete obj.uuid;
       }
       return obj;

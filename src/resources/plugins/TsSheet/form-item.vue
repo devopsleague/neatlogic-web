@@ -29,13 +29,14 @@
     <div v-else-if="showStatusIcon && mode === 'edit' && hasReaction" class="corner-icon tsfont-lightning text-warning"></div>
     <div v-else-if="showStatusIcon && hasDataError" class="corner-icon">
       <Poptip
+        v-if="isShowErrorMessage"
         word-wrap
         trigger="hover"
         :title="$t('page.exception')"
         transfer
       >
         <!--<span class="text-error tsfont-danger-s"></span>-->
-        <Tag color="error">
+        <Tag color="error" closable @on-close="handleCloseErrorMessage">
           <b>{{ dataErrorList.length }}</b>
           个异常
         </Tag>
@@ -126,6 +127,7 @@
 import formItems from './form/component/index.js';
 import conditionMixin from './form/conditionexpression/condition-mixin.js';
 import { REACTION } from './form/reaction/index.js';
+import { FORMITEMS } from './form/formitem-list.js';
 export default {
   name: '',
   components: {
@@ -216,11 +218,13 @@ export default {
       }, //记录操作执行次数
       isFirstLoad: true, //是否第一次加载，用于比较表单数据新旧值时，第一次触发一次操作
       filter: [], //格式[{column:'矩阵属性uuid',expression:'equal',valueList:["value"]}]
-      REACTION: REACTION //联动规则
+      REACTION: REACTION, //联动规则
+      isShowErrorMessage: true
     };
   },
   beforeCreate() {},
   created() {
+    this.updateConfig();
     this.initStatus();
     this.initReactionWatch();
   },
@@ -442,6 +446,7 @@ export default {
     },
     //验证数据是否满足校验规则
     async validData(validConifg) {
+      this.isShowErrorMessage = true;
       if (this.$refs['formItem']) {
         this.dataErrorList = await this.$refs['formItem'].validDataBase(validConifg);
         if (this.dataErrorList && this.dataErrorList.length > 0) {
@@ -480,6 +485,29 @@ export default {
       if (this.formExtendData) {
         this.$set(this.formExtendData, this.formItem.uuid, val);
       }
+    },
+    updateConfig() {
+      if (this.mode === 'edit') {
+        //更新配置
+        const newFormItem = FORMITEMS.find(d => d.handler === this.formItem.handler && d.category === this.formItem.category);
+        if (!newFormItem) {
+          return;
+        }
+        Object.keys(newFormItem).forEach(key => {
+          if (!this.formItem.hasOwnProperty(key)) {
+            this.$set(this.formItem, key, newFormItem[key]);
+          } else if (!this.$utils.isEmpty(newFormItem[key]) && typeof newFormItem[key] === 'object') {
+            Object.keys(newFormItem[key]).forEach(subKey => {
+              if (!this.formItem[key].hasOwnProperty(subKey)) {
+                this.$set(this.formItem[key], subKey, newFormItem[key][subKey]);
+              }
+            });
+          }
+        });
+      }
+    },
+    handleCloseErrorMessage() {
+      this.isShowErrorMessage = false;
     }
   },
   filter: {},
