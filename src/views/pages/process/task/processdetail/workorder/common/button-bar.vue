@@ -107,6 +107,9 @@
           <DropdownItem v-if="knowledgeConfig && knowledgeConfig.isTransferKnowledge == 1" @click.native="doBtnBarAction('createKnowledge')">
             {{ $t('term.process.converttoknowdoc') }}
           </DropdownItem>
+          <DropdownItem v-if="actionConfig.transfereoastep" @click.native="transfereoastep()">
+            {{ actionConfig.transfereoastep }}
+          </DropdownItem>
         </DropdownMenu>
       </Dropdown>
     </span>
@@ -166,6 +169,7 @@
     </span>
     <FormEditDialog v-if="isShowFormModal" :processTaskConfig="processTaskConfig" @close="closeFormDialog()"></FormEditDialog>
     <ProcessTaskTopo v-if="isShowProcessTaskTopo" :processTaskId="processTaskConfig.id" @close="isShowProcessTaskTopo=false"></ProcessTaskTopo>
+    <TransfereoastepDialog v-if="isShowTransfereoastep" :processTaskId="processTaskConfig.id" @close="isShowTransfereoastep=false"></TransfereoastepDialog>
   </div>
 </template>
 <script>
@@ -173,7 +177,8 @@ export default {
   name: '',
   components: {
     FormEditDialog: () => import('./form-edit-dialog'),
-    ProcessTaskTopo: () => import('@/views/pages/process/task/processdetail/workorder/common/processtask-topo-dialog.vue')
+    ProcessTaskTopo: () => import('@/views/pages/process/task/processdetail/workorder/common/processtask-topo-dialog.vue'),
+    TransfereoastepDialog: () => import('./transfereoastep-dialog.vue')
   },
   props: {
     actionConfig: { type: Object },
@@ -188,7 +193,8 @@ export default {
   data() {
     return {
       isShowFormModal: false,
-      isShowProcessTaskTopo: false
+      isShowProcessTaskTopo: false,
+      isShowTransfereoastep: false
     };
   },
   beforeCreate() {},
@@ -210,6 +216,9 @@ export default {
     },
     closeFormDialog() {
       this.isShowFormModal = false;
+    },
+    transfereoastep() {
+      this.isShowTransfereoastep = true;
     }
   },
   filter: {},
@@ -220,7 +229,7 @@ export default {
       let moreAction = false;
       if ((this.processTaskConfig && this.processTaskConfig.formConfig && this.$AuthUtils.hasRole('PROCESSTASK_MODIFY')) || 
       (this.knowledgeConfig && this.knowledgeConfig.isTransferKnowledge == 1) ||
-      actionConfig.retreat || actionConfig.abortprocessTask || actionConfig.recoverprocessTask || actionConfig.urge || actionConfig.tranferreport || actionConfig.copyprocesstask) {
+      actionConfig.retreat || actionConfig.abortprocessTask || actionConfig.recoverprocessTask || actionConfig.urge || actionConfig.tranferreport || actionConfig.copyprocesstask || actionConfig.transfereoastep) {
         moreAction = true;
       }
       return moreAction;
