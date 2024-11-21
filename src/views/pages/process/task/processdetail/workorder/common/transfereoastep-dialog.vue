@@ -107,7 +107,6 @@ export default {
         };
         this.$api.process.process.saveTransferablestep(data).then(res => {
           if (res.Status == 'OK') {
-            console.log(res);
             //刷新页面
             this.$skipHistory();
             this.$router.push({
