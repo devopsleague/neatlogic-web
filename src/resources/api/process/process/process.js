@@ -154,6 +154,12 @@ const process = {
   },
   completeEoaStep(params) { //完成EOA步骤
     return axios.post('/api/rest/eoa/step/complete', params);
+  },
+  getTransferablestepList(params) { //转交步骤列表
+    return axios.post('/api/rest/eoa/transferablestep/list', params);
+  },
+  saveTransferablestep(params) { //保存转交步骤
+    return axios.post('/api/rest/eoa/step/transfer', params);
   }
 };
 

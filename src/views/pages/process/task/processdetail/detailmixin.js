@@ -198,7 +198,8 @@ export default {
         redo: null, //评分之前回退
         markrepeat: null, // 标记重复事件
         reapproval: null, // 重审
-        createtask: null //创建任务（新的子任务）
+        createtask: null, //创建任务（新的子任务）
+        transfereoastep: null // eoa转交
       },
       disabledConfig: {
         //禁止按钮连续调用接口
