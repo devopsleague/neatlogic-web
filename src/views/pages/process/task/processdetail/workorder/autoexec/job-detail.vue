@@ -64,7 +64,7 @@ export default {
   data() {
     return {
       currenthandlerStepInfo: this.handlerStepInfo,
-      intervalId: null,
+      timer: null,
       loadingShow: false,
       theadList: [
         {
@@ -100,7 +100,11 @@ export default {
   activated() {},
   deactivated() {},
   beforeDestroy() {},
-  destroyed() {},
+  destroyed() {
+    if (this.timer) {
+      this.timer.clear();
+    }
+  },
   methods: {
     gotoJopDetail(job) { //查看作业
       window.open(HOME + '/autoexec.html#/job-detail?id=' + job.id, '_blank');
@@ -108,13 +112,13 @@ export default {
     viewDetail(e) {
       this.$set(e, 'isMore', !e.isMore);
     },
-    getTaskStepInfo() {
+    async getTaskStepInfo() {
       let {processTaskId = '', processTaskStepId = ''} = this.taskData || {};
       const data = {
         processTaskId: processTaskId,
         processTaskStepId: processTaskStepId
       };
-      this.$api.process.processtask.getTaskMessage(data)
+      await this.$api.process.processtask.getTaskMessage(data)
         .then(res => {
           if (res.Status === 'OK') {
             const { processTask = {} } = res.Return || {};
@@ -126,21 +130,19 @@ export default {
         });
     },
     intervalRefreshData(handlerStepInfo) {
-      if (this.intervalId) {
-        clearInterval(this.intervalId);
-        this.intervalId = null;
+      if (this.timer) {
+        this.timer.clear();
       }
       if (!this.$utils.isEmpty(handlerStepInfo) && handlerStepInfo.jobList && handlerStepInfo.jobList.length > 0 && handlerStepInfo.jobList.some(job => job.status === 'running' || job.status === 'pending')) {
-        this.intervalId = setInterval(this.getTaskStepInfo, 15 * 1000);
+        this.timer = this.$utils.setInterval(this.getTaskStepInfo, 15 * 1000);
       } else {
         this.clearIntervalIfSet(); // 清除定时器
       }
     },
     clearIntervalIfSet() {
       this.loadingShow = false;
-      if (this.intervalId) {
-        clearInterval(this.intervalId);
-        this.intervalId = null;
+      if (this.timer) {
+        this.timer.clear();
         this.loadingShow = false;
       }
       setTimeout(() => {

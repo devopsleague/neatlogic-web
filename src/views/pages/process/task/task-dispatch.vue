@@ -209,13 +209,15 @@ export default {
     beforeLeaveCompare(oldData) {
       // 离开当前页面，数据对比
       let newData = this.$refs.dispatchCommon && this.$refs.dispatchCommon.getData();
-      this.$delete(newData, 'formAttributeDataList');
-      this.$delete(newData, 'hidecomponentList');
-      this.$delete(newData, 'readcomponentList');
-      this.$delete(oldData, 'formAttributeDataList');
-      this.$delete(oldData, 'hidecomponentList');
-      this.$delete(oldData, 'readcomponentList');
-      return this.$utils.isSame(oldData, newData);
+      if (!this.$utils.isEmpty(newData)) { // 修复newData为空，控制台报错的问题
+        this.$delete(newData, 'formAttributeDataList');
+        this.$delete(newData, 'hidecomponentList');
+        this.$delete(newData, 'readcomponentList');
+        this.$delete(oldData, 'formAttributeDataList');
+        this.$delete(oldData, 'hidecomponentList');
+        this.$delete(oldData, 'readcomponentList');
+        return this.$utils.isSame(oldData, newData);
+      }
     },
     async beforeLeave() {
       //离开页面，二次弹窗，点击'确认按钮'，存储数据,
@@ -436,11 +438,12 @@ export default {
     save() {
       //暂存
       let _this = this;
-      let workdata = this.$refs.dispatchCommon.getData();
+      let dispatchCommon = this.$refs.dispatchCommon;
+      let workdata = dispatchCommon ? dispatchCommon.getData() : {};
       this.initData = this.$utils.deepClone(workdata);
       this.validList = [];
       this.validCardOpen = false;
-      let titleValid = this.$refs.dispatchCommon.validTitle();
+      let titleValid = dispatchCommon ? dispatchCommon.validTitle() : '';
       if (!this.$utils.isEmpty(titleValid)) {
         this.validList.push(...titleValid);
         this.validCardOpen = true;
@@ -640,22 +643,23 @@ export default {
       this.updateFormWidth();
     },
     setTimer() {
-      this.timer = setInterval(() => {
+      this.timer = this.$utils.setInterval(async() => {
         let isSame = this.beforeLeaveCompare(this.initData);
         if (this.autoSaveKey && !isSame) {
-          this.save();
+          await this.save();
         } else {
           return;
         }
-      }, 30000);
+      }, 30 * 1000); // 30秒自动保存一次
     },
     clearObservable() {
       //清空状态管理的数据
       store.showDetailConfig = {};
     },
     clearTimer() {
-      clearInterval(this.timer);
-      this.timer = null;
+      if (this.timer) {
+        this.timer.clear();
+      }
     },
     toggleSiderHide(isSiderHide) {
       this.updateFormWidth();
